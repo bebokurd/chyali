@@ -260,6 +260,10 @@ function updateStats() {
     if (linksEl) linksEl.innerText = totalLinks.toLocaleString();
     if (catsEl) catsEl.innerText = uniqueCategories;
 
+    // Update Marquee statistics
+    document.querySelectorAll('.marquee-total-links').forEach(el => el.innerText = totalLinks.toLocaleString());
+    document.querySelectorAll('.marquee-total-categories').forEach(el => el.innerText = uniqueCategories);
+
     // Count categories dynamically for Home Dashboard breakdown
     const countAi = packageData.filter(p => p.cat === 'ai').length;
     const countTools = packageData.filter(p => p.cat === 'tools').length;
