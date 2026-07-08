@@ -141,11 +141,14 @@ window.onload = async () => {
     renderInstalled();
     renderCategoriesHub();
     updateClock();
+    startAnalogClockSmoothLoop();
     updateStats();
+    loadMarqueeTmdbNews();
     handleDeepLink();
     initializeFaqAiFeatures();
     startHomeActivityMonitor();
     initializeAiSettingsUI();
+    initTempMail();
 
     // Setup LIVE YTS/TMDB empty query handler
     const ksSearchInput = document.getElementById('ks-search-input');
@@ -281,6 +284,116 @@ function updateStats() {
     if (countSportsEl) countSportsEl.innerText = countSports;
 }
 
+// VIDEASY, TMDB & AniList Marquee News (Movies, TV Shows & Anime)
+async function loadMarqueeTmdbNews() {
+    try {
+        const movieUrl = `https://api.themoviedb.org/3/trending/movie/day?api_key=${TMDB_API_KEY}`;
+        const tvUrl = `https://api.themoviedb.org/3/trending/tv/day?api_key=${TMDB_API_KEY}`;
+        
+        // AniList Query for trending releasing anime
+        const animeQuery = `
+        query {
+          Page (page: 1, perPage: 5) {
+            media (sort: TRENDING_DESC, type: ANIME, status: RELEASING) {
+              title {
+                english
+                romaji
+              }
+              seasonYear
+            }
+          }
+        }
+        `;
+
+        // Run all requests in parallel
+        const [movieRes, tvRes, animeRes] = await Promise.all([
+            fetch(movieUrl).then(r => r.json()).catch(() => ({ results: [] })),
+            fetch(tvUrl).then(r => r.json()).catch(() => ({ results: [] })),
+            fetch('https://graphql.anilist.co', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ query: animeQuery })
+            }).then(r => r.json()).catch(() => ({ data: { Page: { media: [] } } }))
+        ]);
+
+        const newsItems = [];
+
+        // 1. Movies (top 3)
+        const movies = (movieRes.results || []).slice(0, 3);
+        movies.forEach(m => {
+            const title = m.title || m.original_title || "Unknown Movie";
+            const year = m.release_date ? m.release_date.split('-')[0] : '';
+            const rating = m.vote_average ? m.vote_average.toFixed(1) : 'N/A';
+            newsItems.push(`<span class="marquee-item"><i class="fas fa-film" style="color: #60a5fa;"></i> Movie: <strong>${title}</strong> (${year}) • <i class="fas fa-star" style="color: #fbbf24; font-size: 0.65rem;"></i> ${rating}</span>`);
+        });
+
+        // 2. TV Shows (top 3)
+        const tvShows = (tvRes.results || []).slice(0, 3);
+        tvShows.forEach(t => {
+            const name = t.name || t.original_name || "Unknown TV Show";
+            const year = t.first_air_date ? t.first_air_date.split('-')[0] : '';
+            const rating = t.vote_average ? t.vote_average.toFixed(1) : 'N/A';
+            newsItems.push(`<span class="marquee-item"><i class="fas fa-tv" style="color: #10b981;"></i> Show: <strong>${name}</strong> (${year}) • <i class="fas fa-star" style="color: #fbbf24; font-size: 0.65rem;"></i> ${rating}</span>`);
+        });
+
+        // 3. Anime (top 3)
+        const animeList = (animeRes.data?.Page?.media || []).slice(0, 3);
+        animeList.forEach(a => {
+            const title = a.title.english || a.title.romaji || "Unknown Anime";
+            const year = a.seasonYear || '';
+            newsItems.push(`<span class="marquee-item"><i class="fas fa-ghost" style="color: #a855f7;"></i> Anime: <strong>${title}</strong> (${year})</span>`);
+        });
+
+        updateMarqueeContent(newsItems);
+    } catch (e) {
+        console.error("Error loading TMDB/AniList marquee news:", e);
+        updateMarqueeContent([]);
+    }
+}
+
+function updateMarqueeContent(movieItems = []) {
+    const staticAnnouncements = [
+        `<span class="marquee-item"><i class="fas fa-code"></i> Developer: Chya Luqman</span>`,
+        `<span class="marquee-item"><i class="fas fa-cubes"></i> Registry Packages: <strong class="marquee-total-links">...</strong></span>`,
+        `<span class="marquee-item"><i class="fas fa-th-large"></i> Active Categories: <strong class="marquee-total-categories">...</strong></span>`,
+        `<span class="marquee-item"><i class="fas fa-check-circle" style="color: #4ade80;"></i> System Status: <span style="color: #4ade80; font-weight: 700;">Operational</span></span>`,
+        `<span class="marquee-item"><i class="fab fa-discord" style="color: #5865f2;"></i> Join our Discord community for support and tweak suggestions!</span>`
+    ];
+
+    const utilityItems = [
+        `<span class="marquee-item"><i class="fab fa-tiktok"></i> TikTok Downloader: Online</span>`,
+        `<span class="marquee-item"><i class="fab fa-instagram"></i> Instagram Lookup: Active</span>`,
+        `<span class="marquee-item"><i class="fas fa-play-circle"></i> KurdStream: Connected</span>`,
+        `<span class="marquee-item"><i class="fas fa-robot"></i> AI Search Hub: Ready</span>`,
+        `<span class="marquee-item"><i class="fas fa-camera"></i> Anime Search: Online</span>`,
+        `<span class="marquee-item"><i class="fas fa-images"></i> Lens Search: Active</span>`,
+        `<span class="marquee-item"><i class="fas fa-microphone-alt"></i> KurdDoblazh: Connected</span>`,
+        `<span class="marquee-item"><i class="fas fa-futbol"></i> Live Sports: Online</span>`,
+        `<span class="marquee-item"><i class="fas fa-code"></i> API Hub: Active</span>`,
+        `<span class="marquee-item"><i class="fas fa-gamepad"></i> Free Games: Connected</span>`,
+        `<span class="marquee-item"><i class="fas fa-wifi"></i> Latency: Stable 12ms</span>`
+    ];
+
+    const allItems = [
+        ...staticAnnouncements,
+        ...movieItems,
+        ...utilityItems
+    ];
+
+    const htmlContent = allItems.join('<span class="marquee-divider">•</span>') + '<span class="marquee-divider">•</span>';
+
+    document.querySelectorAll('.marquee-content').forEach(el => {
+        el.innerHTML = htmlContent;
+    });
+
+    if (packageData) {
+        const totalLinks = packageData.length;
+        const uniqueCategories = new Set(packageData.map(p => p.cat)).size;
+        document.querySelectorAll('.marquee-total-links').forEach(el => el.innerText = totalLinks.toLocaleString());
+        document.querySelectorAll('.marquee-total-categories').forEach(el => el.innerText = uniqueCategories);
+    }
+}
+
 function createBiometricDots() {
     const container = document.querySelector('.biometric-dots');
     if (!container) return;
@@ -359,7 +472,38 @@ function updateClock() {
         mainDate.innerText = now.toLocaleDateString(undefined, options);
     }
 
-    setTimeout(updateClock, 60000);
+    // Refresh digital clock once a second
+    setTimeout(updateClock, 1000);
+}
+
+function startAnalogClockSmoothLoop() {
+    function updateSmooth() {
+        const now = new Date();
+        const ms = now.getMilliseconds();
+        const seconds = now.getSeconds() + ms / 1000;
+        const minutes = now.getMinutes() + seconds / 60;
+        const hours = (now.getHours() % 12) + minutes / 60;
+
+        const secondHand = document.getElementById('second-hand');
+        const minuteHand = document.getElementById('minute-hand');
+        const hourHand = document.getElementById('hour-hand');
+
+        if (secondHand) {
+            const secDeg = (seconds / 60) * 360;
+            secondHand.style.transform = `rotate(${secDeg}deg)`;
+        }
+        if (minuteHand) {
+            const minDeg = (minutes / 60) * 360;
+            minuteHand.style.transform = `rotate(${minDeg}deg)`;
+        }
+        if (hourHand) {
+            const hourDeg = (hours / 12) * 360;
+            hourHand.style.transform = `rotate(${hourDeg}deg)`;
+        }
+
+        requestAnimationFrame(updateSmooth);
+    }
+    requestAnimationFrame(updateSmooth);
 }
 
 function typeWriter(text, i) {
@@ -424,7 +568,10 @@ function initSongsPlaylist() {
             if (!audio.duration) return;
             const progress = (audio.currentTime / audio.duration) * 100;
             const progressInput = document.getElementById('audio-progress-bar');
-            if (progressInput) progressInput.value = progress;
+            if (progressInput) {
+                progressInput.value = progress;
+                progressInput.style.background = `linear-gradient(to right, #a855f7 0%, #a855f7 ${progress}%, rgba(255, 255, 255, 0.1) ${progress}%, rgba(255, 255, 255, 0.1) 100%)`;
+            }
             
             const currentLabel = document.getElementById('track-time-current');
             if (currentLabel) currentLabel.innerText = formatTime(audio.currentTime);
@@ -444,6 +591,7 @@ function initSongsPlaylist() {
                 if (!audio || !audio.duration) return;
                 const newTime = (progressInput.value / 100) * audio.duration;
                 audio.currentTime = newTime;
+                progressInput.style.background = `linear-gradient(to right, #a855f7 0%, #a855f7 ${progressInput.value}%, rgba(255, 255, 255, 0.1) ${progressInput.value}%, rgba(255, 255, 255, 0.1) 100%)`;
             });
         }
         
@@ -452,11 +600,15 @@ function initSongsPlaylist() {
             if (audio) {
                 volumeSlider.value = audio.volume * 100;
             }
+            volumeSlider.style.background = `linear-gradient(to right, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) ${volumeSlider.value}%, rgba(255, 255, 255, 0.1) ${volumeSlider.value}%, rgba(255, 255, 255, 0.1) 100%)`;
+            
             volumeSlider.addEventListener('input', () => {
                 if (!audio) return;
                 const vol = volumeSlider.value / 100;
                 audio.volume = vol;
                 audio.muted = false;
+                
+                volumeSlider.style.background = `linear-gradient(to right, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) ${volumeSlider.value}%, rgba(255, 255, 255, 0.1) ${volumeSlider.value}%, rgba(255, 255, 255, 0.1) 100%)`;
                 
                 const volumeIcon = document.getElementById('volume-icon-btn');
                 if (volumeIcon) {
@@ -583,12 +735,16 @@ function updateSongsPlayerUI() {
             
             const progressInput = document.getElementById('audio-progress-bar');
             if (progressInput && audio.duration) {
-                progressInput.value = (audio.currentTime / audio.duration) * 100;
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressInput.value = progress;
+                progressInput.style.background = `linear-gradient(to right, #a855f7 0%, #a855f7 ${progress}%, rgba(255, 255, 255, 0.1) ${progress}%, rgba(255, 255, 255, 0.1) 100%)`;
             }
             
             const volumeSlider = document.getElementById('audio-volume-slider');
             if (volumeSlider) {
-                volumeSlider.value = audio.volume * 100;
+                const volVal = audio.volume * 100;
+                volumeSlider.value = volVal;
+                volumeSlider.style.background = `linear-gradient(to right, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) ${volVal}%, rgba(255, 255, 255, 0.1) ${volVal}%, rgba(255, 255, 255, 0.1) 100%)`;
             }
         }
     }
@@ -7556,6 +7712,447 @@ function toggleSportsFullscreen() {
 
 // Initialize settings on page load
 loadPrivacySettings();
+
+// ==========================================================================
+// TEMP MAIL CLIENT (MAIL.TM API INTEGRATION)
+// ==========================================================================
+let tempMailAccount = null; // { id, address, password, token }
+let tempMailInbox = [];
+let tempMailInterval = null;
+let currentMailMessage = null; // Currently opened message object
+
+// Initialize Temp Mail on page load
+function initTempMail() {
+    const savedAccount = localStorage.getItem('temp_mail_account');
+    if (savedAccount) {
+        try {
+            tempMailAccount = JSON.parse(savedAccount);
+            // Verify and display
+            updateTempMailStatus('listening', 'Mailbox active & listening');
+            document.getElementById('temp-mail-address').innerText = tempMailAccount.address;
+            fetchTempMessages();
+            startInboxPolling();
+        } catch (e) {
+            console.error("Error parsing saved temp mail account, creating new one:", e);
+            generateNewMailAccount();
+        }
+    } else {
+        generateNewMailAccount();
+    }
+}
+
+// Generate new random account details and register it
+async function generateNewMailAccount() {
+    updateTempMailStatus('loading', 'Fetching active domains...');
+    document.getElementById('temp-mail-address').innerText = 'Generating...';
+    
+    try {
+        // Step 1: Fetch domains
+        const domainsRes = await fetch('https://api.mail.tm/domains');
+        const domainsData = await domainsRes.json();
+        const activeDomains = domainsData['hydra:member'] || domainsData;
+        
+        if (!activeDomains || activeDomains.length === 0) {
+            throw new Error("No active domains returned from Mail.tm");
+        }
+        
+        const selectedDomain = activeDomains[0].domain;
+        
+        // Step 2: Create random credentials
+        const randomString = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 7);
+        const address = `${randomString}@${selectedDomain}`;
+        const password = Math.random().toString(36).substring(2, 15) + "A1!"; // strong password
+        
+        updateTempMailStatus('loading', 'Registering inbox account...');
+        
+        // Step 3: Register Account
+        const registerRes = await fetch('https://api.mail.tm/accounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address, password })
+        });
+        
+        if (!registerRes.ok) {
+            const errDetail = await registerRes.text();
+            throw new Error(`Failed to create account: ${errDetail}`);
+        }
+        
+        const registerData = await registerRes.json();
+        const accountId = registerData.id;
+        
+        updateTempMailStatus('loading', 'Authenticating session token...');
+        
+        // Step 4: Obtain token
+        const tokenRes = await fetch('https://api.mail.tm/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address, password })
+        });
+        
+        if (!tokenRes.ok) {
+            throw new Error("Authentication failed after account registration");
+        }
+        
+        const tokenData = await tokenRes.json();
+        const token = tokenData.token;
+        
+        // Step 5: Save locally
+        tempMailAccount = { id: accountId, address, password, token };
+        localStorage.setItem('temp_mail_account', JSON.stringify(tempMailAccount));
+        
+        // Step 6: Render in UI
+        document.getElementById('temp-mail-address').innerText = address;
+        updateTempMailStatus('listening', 'Mailbox active & listening');
+        showToast('Temporary Email Created!', 'fa-envelope-open');
+        
+        // Step 7: Fetch and poll
+        tempMailInbox = [];
+        renderTempInbox();
+        startInboxPolling();
+        
+    } catch (err) {
+        console.error("Temp mail generation failure:", err);
+        updateTempMailStatus('error', 'Mailbox initialization failed');
+        document.getElementById('temp-mail-address').innerText = 'Offline - Tap refresh to retry';
+        showToast('Mailbox generation failed.', 'fa-exclamation-triangle');
+    }
+}
+
+// Update the status dot and description text
+function updateTempMailStatus(state, message) {
+    const pulseDot = document.getElementById('temp-mail-pulse');
+    const statusText = document.getElementById('temp-mail-status-text');
+    if (!pulseDot || !statusText) return;
+    
+    statusText.innerText = message;
+    
+    if (state === 'listening') {
+        pulseDot.className = 'pulse-glow-green';
+        pulseDot.style.background = '#4ade80';
+        pulseDot.style.boxShadow = '0 0 10px rgba(74, 222, 128, 0.5)';
+    } else if (state === 'loading') {
+        pulseDot.className = 'pulse-glow-green';
+        pulseDot.style.background = '#eab308';
+        pulseDot.style.boxShadow = '0 0 10px rgba(234, 179, 8, 0.5)';
+    } else if (state === 'error') {
+        pulseDot.className = 'pulse-glow-green';
+        pulseDot.style.background = '#ef4444';
+        pulseDot.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.5)';
+    }
+}
+
+// Copy to clipboard with success feedback toast
+function copyTempMailAddress() {
+    if (!tempMailAccount || !tempMailAccount.address) return;
+    navigator.clipboard.writeText(tempMailAccount.address).then(() => {
+        showToast('Address Copied to Clipboard!', 'fa-copy');
+    }).catch(e => {
+        console.error("Clipboard copy failed:", e);
+    });
+}
+
+// Fetch messages list from Mail.tm
+async function fetchTempMessages() {
+    if (!tempMailAccount || !tempMailAccount.token) return;
+    
+    try {
+        const res = await fetch('https://api.mail.tm/messages', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${tempMailAccount.token}`,
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!res.ok) {
+            // Handle invalid token / expired account
+            if (res.status === 401) {
+                console.warn("Unauthorized API token, generating new mailbox account...");
+                generateNewMailAccount();
+            }
+            return;
+        }
+        
+        const data = await res.json();
+        // Mail.tm returns message resource items in standard JSON
+        tempMailInbox = data['hydra:member'] || data || [];
+        renderTempInbox();
+        
+    } catch (err) {
+        console.error("Error checking mailbox updates:", err);
+    }
+}
+
+// Polling interval tracker
+function startInboxPolling() {
+    if (tempMailInterval) clearInterval(tempMailInterval);
+    tempMailInterval = setInterval(fetchTempMessages, 10000); // Check every 10 seconds
+}
+
+// Helper to get initials and random colorful gradient avatar
+function getInitialsAvatar(name) {
+    if (!name) return '<div class="mail-avatar" style="background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);"><i class="fas fa-user"></i></div>';
+    
+    // Extract name before brackets or email addresses
+    const cleanName = name.replace(/<.*>/, '').trim();
+    const parts = cleanName.split(' ');
+    let initials = '';
+    if (parts.length > 0 && parts[0]) initials += parts[0].charAt(0).toUpperCase();
+    if (parts.length > 1 && parts[1]) initials += parts[1].charAt(0).toUpperCase();
+    if (!initials) initials = '?';
+    
+    // Choose dynamic gradient color pair based on simple string hashing
+    let hash = 0;
+    for (let i = 0; i < cleanName.length; i++) {
+        hash = cleanName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const colors = [
+        ['#a855f7', '#3b82f6'], // Purple-Blue
+        ['#ec4899', '#8b5cf6'], // Pink-Purple
+        ['#3b82f6', '#10b981'], // Blue-Green
+        ['#f59e0b', '#ef4444'], // Yellow-Red
+        ['#06b6d4', '#3b82f6']  // Cyan-Blue
+    ];
+    const pair = colors[Math.abs(hash) % colors.length];
+    
+    return `<div class="mail-avatar" style="background: linear-gradient(135deg, ${pair[0]} 0%, ${pair[1]} 100%);">${initials}</div>`;
+}
+
+// Render message cards
+function renderTempInbox() {
+    const inboxList = document.getElementById('temp-mail-inbox');
+    const countBadge = document.getElementById('temp-mail-count');
+    if (!inboxList || !countBadge) return;
+    
+    countBadge.innerText = `${tempMailInbox.length} messages`;
+    
+    if (tempMailInbox.length === 0) {
+        inboxList.innerHTML = `
+            <div class="inbox-empty-state">
+                <i class="fas fa-envelope-open"></i>
+                <h4>Your Inbox is Empty</h4>
+                <p>Waiting for incoming emails. This view polls automatically every 10 seconds.</p>
+            </div>`;
+        return;
+    }
+    
+    let html = '';
+    tempMailInbox.forEach(msg => {
+        const dateStr = new Date(msg.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const fromAddr = msg.from ? (msg.from.name || msg.from.address) : 'Unknown Sender';
+        const unreadClass = msg.seen ? '' : 'unread';
+        const subject = msg.subject || '(No Subject)';
+        const preview = msg.intro || '';
+        const avatarHtml = getInitialsAvatar(fromAddr);
+        
+        html += `
+            <div class="mail-card ${unreadClass}" onclick="openTempMessage('${msg.id}')">
+                <div class="mail-card-layout">
+                    ${avatarHtml}
+                    <div class="mail-card-body">
+                        <div class="mail-card-header">
+                            <span class="mail-card-sender">${fromAddr}</span>
+                            <span class="mail-card-time">${dateStr}</span>
+                        </div>
+                        <div class="mail-card-subject">${subject}</div>
+                        <div class="mail-card-preview">${preview}</div>
+                    </div>
+                </div>
+            </div>`;
+    });
+    
+    inboxList.innerHTML = html;
+}
+
+// Open message detail modal
+async function openTempMessage(id) {
+    if (!tempMailAccount || !tempMailAccount.token) return;
+    
+    showToast('Opening message details...', 'fa-envelope-open');
+    
+    try {
+        const res = await fetch(`https://api.mail.tm/messages/${id}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${tempMailAccount.token}`,
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!res.ok) throw new Error("Failed to retrieve email content from server");
+        
+        const msg = await res.json();
+        currentMailMessage = msg;
+        
+        // Set seen to true locally and update indices
+        const idx = tempMailInbox.findIndex(m => m.id === id);
+        if (idx !== -1) {
+            tempMailInbox[idx].seen = true;
+            renderTempInbox();
+        }
+        
+        // Show reading modal
+        document.getElementById('temp-mail-reader-modal').style.display = 'flex';
+        
+        // Populate header details
+        const fromAddr = msg.from ? `${msg.from.name || ''} <${msg.from.address}>` : 'Unknown Sender';
+        document.getElementById('mail-reader-from').innerText = fromAddr;
+        document.getElementById('mail-reader-date').innerText = new Date(msg.createdAt).toLocaleString();
+        document.getElementById('mail-reader-subject').innerText = msg.subject || '(No Subject)';
+        
+        // Select best rendering mode (HTML or raw text)
+        const iframe = document.getElementById('temp-mail-body-iframe');
+        const textPanel = document.getElementById('temp-mail-body-raw');
+        
+        if (msg.html && msg.html.length > 0) {
+            textPanel.style.display = 'none';
+            iframe.style.display = 'block';
+            
+            // Set frame srcdoc dynamically to isolate styles securely
+            iframe.srcdoc = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                            font-size: 14px;
+                            line-height: 1.5;
+                            color: #333;
+                            margin: 15px;
+                            word-wrap: break-word;
+                            background: #fff;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${msg.html[0]}
+                </body>
+                </html>
+            `;
+        } else {
+            iframe.style.display = 'none';
+            textPanel.style.display = 'block';
+            textPanel.innerText = msg.text || '';
+        }
+        
+        // Populate attachments if any
+        const attachmentsPanel = document.getElementById('mail-reader-attachments');
+        const attachmentsList = document.getElementById('mail-reader-attachments-list');
+        
+        if (msg.attachments && msg.attachments.length > 0) {
+            attachmentsPanel.style.display = 'flex';
+            let attachHtml = '';
+            msg.attachments.forEach(att => {
+                // Download URL points directly to the message's attachment endpoint
+                const downloadUrl = `https://api.mail.tm/messages/${id}/attachment/${att.id}`;
+                const sizeStr = (att.size / 1024).toFixed(1) + ' KB';
+                attachHtml += `
+                    <a href="${downloadUrl}" target="_blank" class="mail-attachment-chip" title="Download ${att.filename}">
+                        <i class="fas fa-file"></i> ${att.filename} (${sizeStr})
+                    </a>`;
+            });
+            attachmentsList.innerHTML = attachHtml;
+        } else {
+            attachmentsPanel.style.display = 'none';
+            attachmentsList.innerHTML = '';
+        }
+        
+        // Mark message as read on server asynchronously
+        fetch(`https://api.mail.tm/messages/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${tempMailAccount.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ seen: true })
+        }).catch(e => console.warn("Failed to mark message as read on server:", e));
+        
+    } catch (err) {
+        console.error("Open message failure:", err);
+        showToast('Error opening email.', 'fa-exclamation-triangle');
+    }
+}
+
+// Close mail reader modal
+function closeTempMailReader() {
+    document.getElementById('temp-mail-reader-modal').style.display = 'none';
+    currentMailMessage = null;
+    
+    // Clear out iframe to avoid leakage
+    const iframe = document.getElementById('temp-mail-body-iframe');
+    if (iframe) iframe.srcdoc = '';
+}
+
+// Delete message from server
+async function deleteCurrentMessage() {
+    if (!currentMailMessage || !tempMailAccount || !tempMailAccount.token) return;
+    
+    const id = currentMailMessage.id;
+    showToast('Deleting email message...', 'fa-trash-alt');
+    
+    try {
+        const res = await fetch(`https://api.mail.tm/messages/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${tempMailAccount.token}`
+            }
+        });
+        
+        if (!res.ok) throw new Error("Delete endpoint failed");
+        
+        // Filter out from local arrays
+        tempMailInbox = tempMailInbox.filter(m => m.id !== id);
+        renderTempInbox();
+        closeTempMailReader();
+        showToast('Message Deleted!', 'fa-trash');
+        
+    } catch (err) {
+        console.error("Error deleting email:", err);
+        showToast('Failed to delete email.', 'fa-exclamation-triangle');
+    }
+}
+
+// Regenerate Temporary Email
+function regenerateTempMail() {
+    if (confirm("Are you sure you want to regenerate your address? This will delete the current temporary mailbox and all messages permanently.")) {
+        if (tempMailInterval) clearInterval(tempMailInterval);
+        localStorage.removeItem('temp_mail_account');
+        tempMailAccount = null;
+        generateNewMailAccount();
+    }
+}
+
+// Manually trigger check for emails and reset the dynamic loader bar
+async function manualCheckTempMail() {
+    updateTempMailStatus('loading', 'Checking for messages...');
+    
+    // Animate/Reset the poll bar fill
+    const pollBarFill = document.querySelector('.temp-mail-poll-bar-fill');
+    if (pollBarFill) {
+        pollBarFill.style.animation = 'none';
+        void pollBarFill.offsetWidth; // force element reflow layout recalculation
+        pollBarFill.style.animation = 'tempMailPollProgress 10s linear infinite';
+    }
+    
+    await fetchTempMessages();
+    
+    updateTempMailStatus('listening', 'Mailbox active & listening');
+    showToast('Inbox Refreshed Successfully', 'fa-sync');
+}
+
+// Forward the email using pre-populated mailto parameters
+function forwardCurrentMessage() {
+    if (!currentMailMessage) return;
+    const subject = encodeURIComponent(`Fwd: ${currentMailMessage.subject || ''}`);
+    const bodyText = `---------- Forwarded message ---------\nFrom: ${currentMailMessage.from ? (currentMailMessage.from.name || currentMailMessage.from.address) : 'Unknown Sender'}\nDate: ${new Date(currentMailMessage.createdAt).toLocaleString()}\nSubject: ${currentMailMessage.subject || ''}\n\n${currentMailMessage.text || ''}`;
+    const body = encodeURIComponent(bodyText);
+    
+    // Open system handler
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    showToast('Launching mail client to forward/resend...', 'fa-share');
+}
 
 
 
