@@ -190,6 +190,7 @@ const categoryHashMap = {
     'live-sports': 'sports', 'sports': 'sports',
     'live-tv': 'livetv', 'livetv': 'livetv',
     'pc-games': 'games', 'games': 'games',
+    'emulators': 'emulators',
     'game-mods': 'mods', 'mods': 'mods',
     'pc-tools': 'tools', 'tools': 'tools',
     'web-browsers': 'browser', 'browser': 'browser',
@@ -272,12 +273,12 @@ function updateStats() {
     const countTools = packageData.filter(p => p.cat === 'tools').length;
     const countKurdish = packageData.filter(p => p.cat === 'kurdish').length;
     const countSports = packageData.filter(p => p.cat === 'sports').length;
-    
+
     const countAiEl = document.getElementById('count-ai');
     const countToolsEl = document.getElementById('count-tools');
     const countKurdishEl = document.getElementById('count-kurdish');
     const countSportsEl = document.getElementById('count-sports');
-    
+
     if (countAiEl) countAiEl.innerText = countAi;
     if (countToolsEl) countToolsEl.innerText = countTools;
     if (countKurdishEl) countKurdishEl.innerText = countKurdish;
@@ -289,7 +290,7 @@ async function loadMarqueeTmdbNews() {
     try {
         const movieUrl = `https://api.themoviedb.org/3/trending/movie/day?api_key=${TMDB_API_KEY}`;
         const tvUrl = `https://api.themoviedb.org/3/trending/tv/day?api_key=${TMDB_API_KEY}`;
-        
+
         // AniList Query for trending releasing anime
         const animeQuery = `
         query {
@@ -518,9 +519,9 @@ function typeWriter(text, i) {
 // Songs Player & Playlist Management
 let playlist = [
     { name: "Lala (Default Background)", url: "lala.mp3", isDefault: true, color: "#a855f7", colorRgb: "168, 85, 247" },
-    { name: "Synthwave Retro Beats", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", isDefault: true, color: "#f43f5e", colorRgb: "244, 63, 94" },
-    { name: "Chill Ambient Vibes", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", isDefault: true, color: "#06b6d4", colorRgb: "6, 182, 212" },
-    { name: "Lo-Fi Beats for Coding", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", isDefault: true, color: "#f59e0b", colorRgb: "245, 158, 11" }
+    { name: "NAVID ZARDI MAMHENA MAMBA", url: "NAVID ZARDI MAMHENA MAMBA.mp3", isDefault: true, color: "#f43f5e", colorRgb: "244, 63, 94" },
+    { name: "12.Ewini be kota instrumental Huner Heme Jezza", url: "12.Ewini be kota instrumental Huner Heme Jezza.mp3", isDefault: true, color: "#06b6d4", colorRgb: "6, 182, 212" },
+    { name: "Karwan Hawramy Chav Rasha Min Official", url: "Karwan Hawramy Chav Rasha Min Official Music Video.mp3", isDefault: true, color: "#f59e0b", colorRgb: "245, 158, 11" }
 ];
 let currentSongIndex = 0;
 let preMuteVolume = 0.3;
@@ -555,14 +556,14 @@ function initSongsPlaylist() {
         currentSongIndex = parseInt(savedIndex) || 0;
         if (currentSongIndex >= playlist.length) currentSongIndex = 0;
     }
-    
+
     // Setup ended event to advance songs automatically
     if (audio) {
         audio.removeAttribute('loop'); // Disable looping default so it goes to next song
         audio.addEventListener('ended', () => {
             nextSong();
         });
-        
+
         // Progress scrubber updates
         audio.addEventListener('timeupdate', () => {
             if (!audio.duration) return;
@@ -572,17 +573,17 @@ function initSongsPlaylist() {
                 progressInput.value = progress;
                 progressInput.style.background = `linear-gradient(to right, #a855f7 0%, #a855f7 ${progress}%, rgba(255, 255, 255, 0.1) ${progress}%, rgba(255, 255, 255, 0.1) 100%)`;
             }
-            
+
             const currentLabel = document.getElementById('track-time-current');
             if (currentLabel) currentLabel.innerText = formatTime(audio.currentTime);
         });
-        
+
         audio.addEventListener('durationchange', () => {
             const durationLabel = document.getElementById('track-time-duration');
             if (durationLabel) durationLabel.innerText = formatTime(audio.duration);
         });
     }
-    
+
     // Setup scrub and volume event listeners in DOM
     setTimeout(() => {
         const progressInput = document.getElementById('audio-progress-bar');
@@ -594,22 +595,22 @@ function initSongsPlaylist() {
                 progressInput.style.background = `linear-gradient(to right, #a855f7 0%, #a855f7 ${progressInput.value}%, rgba(255, 255, 255, 0.1) ${progressInput.value}%, rgba(255, 255, 255, 0.1) 100%)`;
             });
         }
-        
+
         const volumeSlider = document.getElementById('audio-volume-slider');
         if (volumeSlider) {
             if (audio) {
                 volumeSlider.value = audio.volume * 100;
             }
             volumeSlider.style.background = `linear-gradient(to right, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) ${volumeSlider.value}%, rgba(255, 255, 255, 0.1) ${volumeSlider.value}%, rgba(255, 255, 255, 0.1) 100%)`;
-            
+
             volumeSlider.addEventListener('input', () => {
                 if (!audio) return;
                 const vol = volumeSlider.value / 100;
                 audio.volume = vol;
                 audio.muted = false;
-                
+
                 volumeSlider.style.background = `linear-gradient(to right, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.4) ${volumeSlider.value}%, rgba(255, 255, 255, 0.1) ${volumeSlider.value}%, rgba(255, 255, 255, 0.1) 100%)`;
-                
+
                 const volumeIcon = document.getElementById('volume-icon-btn');
                 if (volumeIcon) {
                     if (vol === 0) {
@@ -647,27 +648,37 @@ function closeSongsPlayer() {
 function renderPlaylist() {
     const container = document.getElementById('playlist-items-container');
     if (!container) return;
-    
+
     let html = "";
     playlist.forEach((song, index) => {
         const isActive = index === currentSongIndex;
         const activeClass = isActive ? 'active' : '';
-        const iconClass = isActive && isPlaying ? 'fas fa-volume-up' : 'fas fa-music';
         
-        // Define inline style to show dynamic accent color bullet next to song name
-        const bulletColor = song.color || '#3b82f6';
-        
+        let iconHtml;
+        if (isActive && isPlaying) {
+            iconHtml = `
+                <div class="eq-visualizer">
+                    <div class="eq-bar" style="--delay: 0.1s"></div>
+                    <div class="eq-bar" style="--delay: 0.4s"></div>
+                    <div class="eq-bar" style="--delay: 0.2s"></div>
+                    <div class="eq-bar" style="--delay: 0.6s"></div>
+                </div>`;
+        } else {
+            const bulletColor = song.color || '#3b82f6';
+            iconHtml = `<span class="playlist-item-icon" style="color: ${isActive ? bulletColor : 'rgba(255,255,255,0.35)'};"><i class="fas fa-music"></i></span>`;
+        }
+
         html += `
             <div class="playlist-item ${activeClass}" onclick="selectSong(${index})">
                 <div class="playlist-item-name-wrap">
-                    <span class="playlist-item-icon" style="color: ${isActive ? bulletColor : 'rgba(255,255,255,0.35)'};"><i class="${iconClass}"></i></span>
+                    ${iconHtml}
                     <span class="playlist-item-name" title="${song.name}">${song.name}</span>
                 </div>
-                ${!song.isDefault ? `
+                ${song.isDefault ? `<span class="playlist-badge">Default</span>` : `
                     <button class="playlist-item-delete" onclick="deleteSong(${index}, event)" title="Delete song">
                         <i class="fas fa-trash-alt"></i>
                     </button>
-                ` : ''}
+                `}
             </div>
         `;
     });
@@ -681,23 +692,23 @@ function updateSongsPlayerUI() {
     const discEl = document.getElementById('now-playing-disc');
     const modalPlayBtn = document.getElementById('modal-play-btn');
     const fabBtn = document.getElementById('audio-fab');
-    
+
     if (playlist[currentSongIndex]) {
         const song = playlist[currentSongIndex];
         if (titleEl) titleEl.innerText = song.name;
         if (statusEl) statusEl.innerText = isPlaying ? "Playing" : "Paused";
-        
+
         if (containerEl) {
             containerEl.style.setProperty('--player-accent', song.color || '#3b82f6');
             containerEl.style.setProperty('--player-accent-rgb', song.colorRgb || '59, 130, 246');
-            
+
             if (isPlaying) {
                 containerEl.classList.add('playing');
             } else {
                 containerEl.classList.remove('playing');
             }
         }
-        
+
         if (discEl) {
             if (isPlaying) {
                 discEl.classList.add('playing');
@@ -705,11 +716,11 @@ function updateSongsPlayerUI() {
                 discEl.classList.remove('playing');
             }
         }
-        
+
         if (modalPlayBtn) {
             modalPlayBtn.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
         }
-        
+
         if (fabBtn) {
             fabBtn.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-music"></i>';
             if (isPlaying) {
@@ -724,22 +735,22 @@ function updateSongsPlayerUI() {
                 fabBtn.style.removeProperty('border-color');
             }
         }
-        
+
         // Sync scrubber and volume sliders
         if (audio) {
             const currentLabel = document.getElementById('track-time-current');
             if (currentLabel) currentLabel.innerText = formatTime(audio.currentTime);
-            
+
             const durationLabel = document.getElementById('track-time-duration');
             if (durationLabel) durationLabel.innerText = formatTime(audio.duration);
-            
+
             const progressInput = document.getElementById('audio-progress-bar');
             if (progressInput && audio.duration) {
                 const progress = (audio.currentTime / audio.duration) * 100;
                 progressInput.value = progress;
                 progressInput.style.background = `linear-gradient(to right, #a855f7 0%, #a855f7 ${progress}%, rgba(255, 255, 255, 0.1) ${progress}%, rgba(255, 255, 255, 0.1) 100%)`;
             }
-            
+
             const volumeSlider = document.getElementById('audio-volume-slider');
             if (volumeSlider) {
                 const volVal = audio.volume * 100;
@@ -755,10 +766,10 @@ function selectSong(index) {
         toggleSongsPlay();
         return;
     }
-    
+
     currentSongIndex = index;
     localStorage.setItem('songs_current_index', currentSongIndex);
-    
+
     const song = playlist[currentSongIndex];
     if (audio) {
         audio.src = song.url;
@@ -771,14 +782,14 @@ function selectSong(index) {
             renderPlaylist();
         });
     }
-    
+
     updateSongsPlayerUI();
     renderPlaylist();
 }
 
 function toggleSongsPlay() {
     if (!audio) return;
-    
+
     // Set src if not already matching the current song
     const currentUrl = playlist[currentSongIndex] ? playlist[currentSongIndex].url : '';
     // Normalize path checks
@@ -786,7 +797,7 @@ function toggleSongsPlay() {
     if (currentUrl && !audioSrc.includes(currentUrl)) {
         audio.src = currentUrl;
     }
-    
+
     if (isPlaying) {
         audio.pause();
         isPlaying = false;
@@ -801,7 +812,7 @@ function toggleSongsPlay() {
             showToast("Click screen first to allow audio playback!", "fa-exclamation-triangle");
         });
     }
-    
+
     updateSongsPlayerUI();
     renderPlaylist();
 }
@@ -827,43 +838,43 @@ function addCustomSong() {
     const nameInput = document.getElementById('add-song-name');
     const urlInput = document.getElementById('add-song-url');
     if (!nameInput || !urlInput) return;
-    
+
     const name = nameInput.value.trim();
     const url = urlInput.value.trim();
-    
+
     if (!name || !url) {
         showToast("Please enter both song name and MP3 link.", "fa-exclamation-triangle");
         return;
     }
-    
+
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
         showToast("Please enter a valid HTTP/HTTPS audio URL.", "fa-exclamation-triangle");
         return;
     }
-    
+
     // Add song with a random accent color preset
     const randomColor = colorPresets[Math.floor(Math.random() * colorPresets.length)];
-    playlist.push({ 
-        name, 
-        url, 
-        isDefault: false, 
-        color: randomColor.color, 
-        colorRgb: randomColor.rgb 
+    playlist.push({
+        name,
+        url,
+        isDefault: false,
+        color: randomColor.color,
+        colorRgb: randomColor.rgb
     });
     localStorage.setItem('songs_playlist', JSON.stringify(playlist));
-    
+
     nameInput.value = "";
     urlInput.value = "";
-    
+
     showToast("Song added to playlist!", "fa-check-circle");
     renderPlaylist();
 }
 
 function deleteSong(index, event) {
     if (event) event.stopPropagation(); // Avoid triggering play on parent div click
-    
+
     if (playlist[index].isDefault) return;
-    
+
     // If playing the song that is being deleted, stop it
     if (index === currentSongIndex) {
         if (audio && isPlaying) {
@@ -876,10 +887,10 @@ function deleteSong(index, event) {
         currentSongIndex--;
         localStorage.setItem('songs_current_index', currentSongIndex);
     }
-    
+
     playlist.splice(index, 1);
     localStorage.setItem('songs_playlist', JSON.stringify(playlist));
-    
+
     showToast("Song removed from playlist.", "fa-check-circle");
     renderPlaylist();
     updateSongsPlayerUI();
@@ -889,7 +900,7 @@ function toggleMute() {
     if (!audio) return;
     const volumeIcon = document.getElementById('volume-icon-btn');
     const volumeSlider = document.getElementById('audio-volume-slider');
-    
+
     if (audio.muted) {
         audio.muted = false;
         audio.volume = preMuteVolume;
@@ -1040,6 +1051,15 @@ function switchTab(tabId, el = null) {
     }
 }
 
+function getIconHtml(icon) {
+    if (!icon) return '<i class="fas fa-question"></i>';
+    const isUrl = icon.startsWith('http') || icon.startsWith('/') || icon.startsWith('.');
+    if (isUrl) {
+        return `<img src="${icon}" style="width: 28px; height: 28px; object-fit: contain; border-radius: 6px;" />`;
+    }
+    return `<i class="${icon}"></i>`;
+}
+
 function renderInstalled(filterCat = null) {
     const container = document.getElementById('installed-list-container');
     container.innerHTML = "";
@@ -1048,7 +1068,7 @@ function renderInstalled(filterCat = null) {
         kurdish: "Kurdish Cinema", anime: "Anime & Manga",
         cartoon: "Cartoons",
         movies: "Movies & Series", tools: "Tools & Software",
-        games: "Game Downloads", mods: "Game Mods",
+        games: "Game Downloads", emulators: "Emulators", mods: "Game Mods",
         livetv: "Live TV & IPTV", ads: "Ad Blockers",
         browser: "Web Browsers",
         sports: "Live Sports", scripts: "Automation Scripts"
@@ -1074,14 +1094,14 @@ function renderInstalled(filterCat = null) {
                 const safeCmd = pkg.cmd.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                 html += `
                     <a href="#" onclick="navigator.clipboard.writeText('${safeCmd}'); showToast('Command copied to clipboard!', 'fa-check-circle'); event.preventDefault();" class="pkg-list-item">
-                        <div class="pkg-list-icon"><i class="${pkg.icon}"></i></div>
+                        <div class="pkg-list-icon">${getIconHtml(pkg.icon)}</div>
                         <div class="pkg-list-info"><span class="pkg-list-name">${pkg.name}</span><span class="pkg-list-desc" style="color:#007aff; font-family:monospace; font-size:0.75rem;">[Click to Copy Command]</span></div>
                         <span class="chevron"><i class="fas fa-copy" style="font-size:0.9rem; color:#888;"></i></span>
                     </a>`;
             } else {
                 html += `
                     <a href="${pkg.url}" target="_blank" class="pkg-list-item">
-                        <div class="pkg-list-icon"><i class="${pkg.icon}"></i></div>
+                        <div class="pkg-list-icon">${getIconHtml(pkg.icon)}</div>
                         <div class="pkg-list-info"><span class="pkg-list-name">${pkg.name}</span><span class="pkg-list-desc">${pkg.desc}</span></div>
                         <span class="chevron">›</span>
                     </a>`;
@@ -1195,6 +1215,7 @@ function renderCategoriesHub() {
         { id: 'sports', name: 'Live Sports', icon: 'fas fa-futbol', color: '#3b82f6' },
         { id: 'livetv', name: 'Live TV', icon: 'fas fa-satellite-dish', color: '#06b6d4' },
         { id: 'games', name: 'PC Games', icon: 'fas fa-gamepad', color: '#14b8a6' },
+        { id: 'emulators', name: 'Emulators', icon: 'fas fa-microchip', color: '#0ea5e9' },
         { id: 'mods', name: 'Game Mods', icon: 'fas fa-wrench', color: '#f97316' },
         { id: 'tools', name: 'PC Tools', icon: 'fas fa-toolbox', color: '#3b82f6' },
         { id: 'browser', name: 'Web Browsers', icon: 'fas fa-globe', color: '#10b981' },
@@ -1208,7 +1229,7 @@ function renderCategoriesHub() {
 
         const card = document.createElement('div');
         card.className = 'category-card';
-        
+
         // Expose dynamic color tokens as CSS variables for premium styling
         card.style.setProperty('--cat-color', cat.color);
         const rgb = hexToRgb(cat.color);
@@ -1276,14 +1297,14 @@ function handleSearch(e) {
                 const safeCmd = pkg.cmd.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                 html += `
                     <a href="#" onclick="navigator.clipboard.writeText('${safeCmd}'); showToast('Command copied!', 'fa-check-circle'); event.preventDefault();" class="pkg-list-item">
-                        <div class="pkg-list-icon"><i class="${pkg.icon}"></i></div>
+                        <div class="pkg-list-icon">${getIconHtml(pkg.icon)}</div>
                         <div class="pkg-list-info"><span class="pkg-list-name">${pkg.name}</span><span class="pkg-list-desc">Copy Command</span></div>
                         <span class="chevron"><i class="fas fa-copy"></i></span>
                     </a>`;
             } else {
                 html += `
                     <a href="${pkg.url}" target="_blank" class="pkg-list-item">
-                        <div class="pkg-list-icon"><i class="${pkg.icon}"></i></div>
+                        <div class="pkg-list-icon">${getIconHtml(pkg.icon)}</div>
                         <div class="pkg-list-info"><span class="pkg-list-name">${pkg.name}</span><span class="pkg-list-desc">${pkg.desc}</span></div>
                         <span class="chevron">›</span>
                     </a>`;
@@ -1381,29 +1402,29 @@ async function performGoogleSearch() {
         // 1. Attempt real-time DuckDuckGo HTML scraping over proxy
         const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(searchUrl)}&timestamp=${Date.now()}`;
-        
+
         console.log("Fetching real web search results via proxy:", proxyUrl);
         const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error("CORS Proxy search failed");
-        
+
         const data = await response.json();
         const parser = new DOMParser();
         const doc = parser.parseFromString(data.contents, "text/html");
-        
+
         const resultElements = doc.querySelectorAll(".result");
         let cards = [];
-        
+
         resultElements.forEach(el => {
             if (cards.length >= 6) return;
             const titleEl = el.querySelector(".result__a");
             const snippetEl = el.querySelector(".result__snippet");
             const urlEl = el.querySelector(".result__url");
-            
+
             if (titleEl && snippetEl) {
                 const title = titleEl.innerText.trim();
                 const snippet = snippetEl.innerText.trim();
                 const rawUrl = titleEl.getAttribute("href");
-                
+
                 let url = rawUrl;
                 if (rawUrl && rawUrl.includes("uddg=")) {
                     const uddgMatch = rawUrl.match(/uddg=([^&]+)/);
@@ -1411,12 +1432,12 @@ async function performGoogleSearch() {
                         url = decodeURIComponent(uddgMatch[1]);
                     }
                 }
-                
+
                 let displayUrl = urlEl ? urlEl.innerText.trim() : url;
                 if (url.startsWith("//")) {
                     url = "https:" + url;
                 }
-                
+
                 cards.push({
                     title,
                     snippet,
@@ -1429,7 +1450,7 @@ async function performGoogleSearch() {
         if (cards.length === 0) {
             throw new Error("No parsed search elements found");
         }
-        
+
         renderSerpCards(cards, query);
 
     } catch (err) {
@@ -2551,7 +2572,7 @@ function updateFreeGamesStats(games, isF2P = false) {
     if (isF2P) {
         countEl.textContent = Math.min(games.length, 60);
         valueEl.textContent = 'Permanently Free';
-        
+
         let platCounts = {};
         games.slice(0, 60).forEach(g => {
             let plat = g.platform.toLowerCase().includes('pc') ? 'PC' : 'Web';
@@ -2575,13 +2596,13 @@ function updateFreeGamesStats(games, isF2P = false) {
                     totalWorth += worthVal;
                 }
             }
-            
+
             let plat = g.platforms.toLowerCase();
             let store = 'Other';
             if (plat.includes('epic')) store = 'Epic Games';
             else if (plat.includes('steam')) store = 'Steam';
             else if (plat.includes('gog')) store = 'GOG';
-            
+
             storeCounts[store] = (storeCounts[store] || 0) + 1;
         });
 
@@ -2614,7 +2635,7 @@ async function loadFreeGames() {
         const response = await secureFetch('https://www.gamerpower.com/api/giveaways');
         if (!response.ok) throw new Error('Failed to load giveaways');
         const data = await response.json();
-        
+
         freeGamesCache = data;
         executeFreeGamesRender();
     } catch (err) {
@@ -2634,10 +2655,10 @@ async function loadFreeGames() {
 
 async function filterFreeGames(platform, btn) {
     if (!btn) return;
-    
+
     btn.parentElement.querySelectorAll('.fg-filter-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
+
     currentFreeGamesPlatform = platform;
     const container = document.getElementById('free-games-container');
     if (!container) return;
@@ -2677,12 +2698,12 @@ function handleFreeGamesSearch() {
     const input = document.getElementById('fg-search-input');
     const clearBtn = document.getElementById('fg-search-clear');
     if (!input) return;
-    
+
     currentFreeGamesQuery = input.value.trim().toLowerCase();
     if (clearBtn) {
         clearBtn.style.display = currentFreeGamesQuery ? 'flex' : 'none';
     }
-    
+
     executeFreeGamesRender();
 }
 
@@ -2719,7 +2740,7 @@ function renderFreeGames(games, platform) {
     if (!container) return;
 
     let filtered = games;
-    
+
     if (platform !== 'all') {
         filtered = games.filter(g => {
             const platLower = g.platforms.toLowerCase();
@@ -2744,10 +2765,10 @@ function renderFreeGames(games, platform) {
             const desc = (g.description || '').toLowerCase();
             const type = (g.type || '').toLowerCase();
             const store = (g.platforms || '').toLowerCase();
-            return title.includes(currentFreeGamesQuery) || 
-                   desc.includes(currentFreeGamesQuery) || 
-                   type.includes(currentFreeGamesQuery) ||
-                   store.includes(currentFreeGamesQuery);
+            return title.includes(currentFreeGamesQuery) ||
+                desc.includes(currentFreeGamesQuery) ||
+                type.includes(currentFreeGamesQuery) ||
+                store.includes(currentFreeGamesQuery);
         });
     }
 
@@ -2785,7 +2806,7 @@ function renderFreeGames(games, platform) {
         const isClaimed = claimed.has(String(game.id));
         card.className = `game-card animated-card ${isClaimed ? 'claimed' : ''}`;
         card.style.animationDelay = `${Math.min(index, 12) * 0.05}s`;
-        
+
         let storeBadge = '';
         let badgeIcon = 'fas fa-gamepad';
         let gameColor = '#10b981';
@@ -2847,7 +2868,7 @@ function renderFreeGames(games, platform) {
                 </div>
             </div>
         `;
-        
+
         setupCardGlowInteraction(card);
         container.appendChild(card);
     });
@@ -2867,10 +2888,10 @@ function renderF2PGames(games) {
             const desc = (g.short_description || '').toLowerCase();
             const genre = (g.genre || '').toLowerCase();
             const platform = (g.platform || '').toLowerCase();
-            return title.includes(currentFreeGamesQuery) || 
-                   desc.includes(currentFreeGamesQuery) || 
-                   genre.includes(currentFreeGamesQuery) ||
-                   platform.includes(currentFreeGamesQuery);
+            return title.includes(currentFreeGamesQuery) ||
+                desc.includes(currentFreeGamesQuery) ||
+                genre.includes(currentFreeGamesQuery) ||
+                platform.includes(currentFreeGamesQuery);
         });
     }
 
@@ -2905,7 +2926,7 @@ function renderF2PGames(games) {
         const isClaimed = claimed.has(String(game.id));
         card.className = `game-card animated-card ${isClaimed ? 'claimed' : ''}`;
         card.style.animationDelay = `${Math.min(index, 12) * 0.05}s`;
-        
+
         card.style.setProperty('--game-color', '#10b981');
         card.style.setProperty('--game-color-rgb', '16, 185, 129');
 
@@ -2943,7 +2964,7 @@ function renderF2PGames(games) {
                 </div>
             </div>
         `;
-        
+
         setupCardGlowInteraction(card);
         container.appendChild(card);
     });
@@ -5492,18 +5513,18 @@ function filterFaqs() {
     const q = document.getElementById('faq-search-input').value.toLowerCase().trim();
     const items = document.querySelectorAll('.faq-grid .faq-item');
     let visibleCount = 0;
-    
+
     items.forEach(item => {
         const cat = item.getAttribute('data-cat');
         const questionText = item.querySelector('.faq-question span').innerText.toLowerCase();
         const answerText = item.querySelector('.faq-answer p').innerText.toLowerCase();
-        
+
         // 1. Check tab filter matches
         const matchesCat = (activeFaqCategory === 'all' || cat === activeFaqCategory);
-        
+
         // 2. Check search input keyword matches
         const matchesSearch = (!q || questionText.includes(q) || answerText.includes(q));
-        
+
         if (matchesCat && matchesSearch) {
             item.classList.remove('hidden-cat', 'hidden-search');
             item.style.display = 'block';
@@ -5527,7 +5548,7 @@ function filterFaqs() {
 }
 
 // FAQ-to-Copilot tab-routing helper
-window.askFaqQuestionCopilot = function(question) {
+window.askFaqQuestionCopilot = function (question) {
     switchTab('google');
     switchSearchMode('copilot');
     const aiInput = document.getElementById('ai-query');
@@ -5538,7 +5559,7 @@ window.askFaqQuestionCopilot = function(question) {
 };
 
 // Routing helper from raw input value when no direct match exists
-window.askFaqCopilotFromInput = function() {
+window.askFaqCopilotFromInput = function () {
     const q = document.getElementById('faq-search-input').value.trim();
     if (q) {
         switchTab('google');
@@ -5574,7 +5595,7 @@ function initializeFaqAiFeatures() {
 }
 
 // Home Quick AI Search trigger helper
-window.triggerHomeAiSearch = function() {
+window.triggerHomeAiSearch = function () {
     const homeInput = document.getElementById('home-ai-input');
     if (!homeInput) return;
     const q = homeInput.value.trim();
@@ -5582,18 +5603,18 @@ window.triggerHomeAiSearch = function() {
         showToast('Please type a question first.', 'fa-exclamation-triangle');
         return;
     }
-    
+
     // Switch to AI Search tab
     switchTab('google');
     switchSearchMode('copilot');
-    
+
     // Fill AI search input and submit
     const aiInput = document.getElementById('ai-query');
     if (aiInput) {
         aiInput.value = q;
         performAiSearch();
     }
-    
+
     // Clear home input
     homeInput.value = '';
 };
@@ -5602,7 +5623,7 @@ window.triggerHomeAiSearch = function() {
 function startHomeActivityMonitor() {
     const consoleEl = document.getElementById('home-console-logs');
     if (!consoleEl) return;
-    
+
     const logs = [
         "SYS: Core kernel active (thread_pool: 64)",
         "SEC: Sandbox authorization token verified",
@@ -5616,24 +5637,24 @@ function startHomeActivityMonitor() {
         "SYS: connection_status = STABLE (RTT: 4ms)",
         "OS: Respring daemon loaded successfully"
     ];
-    
+
     // Pre-populate with 4 random logs
     for (let i = 0; i < 4; i++) {
         const line = logs[Math.floor(Math.random() * logs.length)];
         const timeStr = new Date().toLocaleTimeString(undefined, { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         consoleEl.insertAdjacentHTML('beforeend', `<div style="opacity: 0.85;">[${timeStr}] ${line}</div>`);
     }
-    
+
     // Cycle and append new logs continuously
     setInterval(() => {
         const line = logs[Math.floor(Math.random() * logs.length)];
         const timeStr = new Date().toLocaleTimeString(undefined, { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        
+
         // Remove first log line if limit exceeded to avoid height overflow
         if (consoleEl.children.length >= 6) {
             consoleEl.children[0].remove();
         }
-        
+
         const logLineHtml = `<div style="animation: fadeIn 0.3s ease-out;">[${timeStr}] ${line}</div>`;
         consoleEl.insertAdjacentHTML('beforeend', logLineHtml);
     }, 4500);
@@ -6555,11 +6576,11 @@ function toggleSpeechSynthesis(text, msgId, btn) {
 // ==========================================
 
 // 1. Theme selection
-window.setAppTheme = function(theme) {
+window.setAppTheme = function (theme) {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
     localStorage.setItem('privacy_theme', theme);
-    
+
     // Update theme chips active state
     document.querySelectorAll('.theme-chip').forEach(chip => {
         if (chip.getAttribute('data-theme') === theme) {
@@ -6568,28 +6589,28 @@ window.setAppTheme = function(theme) {
             chip.classList.remove('active');
         }
     });
-    
+
     // Show toast for visual confirmation
     showToast(`Accent theme set to ${theme.charAt(0).toUpperCase() + theme.slice(1)}!`, 'fa-palette');
 };
 
 // 2. Profile alias and biography
-window.updatePrivacyProfile = function() {
+window.updatePrivacyProfile = function () {
     const usernameInput = document.getElementById('privacy-username');
     const bioInput = document.getElementById('privacy-bio');
-    
+
     const username = usernameInput ? usernameInput.value.trim() : '';
     const bio = bioInput ? bioInput.value.trim() : '';
-    
+
     localStorage.setItem('privacy_username', username);
     localStorage.setItem('privacy_bio', bio);
-    
+
     // Sync to other parts of page
     const homeName = document.querySelector('.hero-name');
     if (homeName) {
         homeName.innerText = username || 'Chya Luqman';
     }
-    
+
     const bioEl = document.getElementById('bio-text');
     if (bioEl) {
         bioEl.innerText = bio || 'Developed by Chya Luqman, Cydia Elite is an architectural study in how classic package management can evolve into the era of spatial computing.';
@@ -6597,13 +6618,13 @@ window.updatePrivacyProfile = function() {
 };
 
 // 3. Mouse trail toggler
-window.toggleMouseTrail = function(enabled) {
+window.toggleMouseTrail = function (enabled) {
     localStorage.setItem('privacy_mouse_trail', enabled ? 'true' : 'false');
     showToast(enabled ? 'Cursor particle trail enabled.' : 'Cursor particle trail disabled.', enabled ? 'fa-magic' : 'fa-ban');
 };
 
 // 4. Reduce motion toggler
-window.toggleReduceMotion = function(enabled) {
+window.toggleReduceMotion = function (enabled) {
     localStorage.setItem('privacy_reduce_motion', enabled ? 'true' : 'false');
     if (enabled) {
         document.body.classList.add('reduce-motion');
@@ -6615,7 +6636,7 @@ window.toggleReduceMotion = function(enabled) {
 };
 
 // 5. Search history toggler
-window.toggleSaveHistory = function(enabled) {
+window.toggleSaveHistory = function (enabled) {
     localStorage.setItem('privacy_save_history', enabled ? 'true' : 'false');
     const wrapper = document.getElementById('history-section-wrapper');
     if (wrapper) {
@@ -6630,43 +6651,43 @@ window.toggleSaveHistory = function(enabled) {
 };
 
 // 6. Save search query into history
-window.saveSearchQuery = function(query) {
+window.saveSearchQuery = function (query) {
     query = query.trim();
     if (!query) return;
     if (localStorage.getItem('privacy_save_history') === 'false') return;
-    
+
     let history = [];
     try {
         history = JSON.parse(localStorage.getItem('privacy_search_history') || '[]');
-    } catch(e) {
+    } catch (e) {
         history = [];
     }
-    
+
     history = history.filter(q => q.toLowerCase() !== query.toLowerCase());
     history.unshift(query);
     history = history.slice(0, 10); // keep last 10
-    
+
     localStorage.setItem('privacy_search_history', JSON.stringify(history));
     updateSearchHistoryUI();
 };
 
 // 7. Render search history chips in settings
-window.updateSearchHistoryUI = function() {
+window.updateSearchHistoryUI = function () {
     const container = document.getElementById('privacy-history-tags');
     if (!container) return;
-    
+
     let history = [];
     try {
         history = JSON.parse(localStorage.getItem('privacy_search_history') || '[]');
-    } catch(e) {
+    } catch (e) {
         history = [];
     }
-    
+
     if (history.length === 0) {
         container.innerHTML = '<span style="font-size: 0.75rem; color: rgba(255,255,255,0.3); font-style: italic;">No recent searches logged.</span>';
         return;
     }
-    
+
     let html = '';
     history.forEach((query, index) => {
         html += `
@@ -6680,14 +6701,14 @@ window.updateSearchHistoryUI = function() {
 };
 
 // 8. Delete individual search history tag
-window.deleteHistoryItem = function(index) {
+window.deleteHistoryItem = function (index) {
     let history = [];
     try {
         history = JSON.parse(localStorage.getItem('privacy_search_history') || '[]');
-    } catch(e) {
+    } catch (e) {
         history = [];
     }
-    
+
     history.splice(index, 1);
     localStorage.setItem('privacy_search_history', JSON.stringify(history));
     updateSearchHistoryUI();
@@ -6695,7 +6716,7 @@ window.deleteHistoryItem = function(index) {
 };
 
 // 9. Apply history query to main search bar
-window.applyHistorySearch = function(query) {
+window.applyHistorySearch = function (query) {
     switchTab('search');
     const sInput = document.getElementById('search-input');
     const pcInput = document.getElementById('pc-search-input');
@@ -6710,7 +6731,7 @@ window.applyHistorySearch = function(query) {
 };
 
 // 10. Storage Encryption Toggle (Obfuscator simulation)
-window.toggleStorageEncryption = function(enabled) {
+window.toggleStorageEncryption = function (enabled) {
     localStorage.setItem('privacy_encryption', enabled ? 'true' : 'false');
     if (enabled) {
         showToast('Local states obfuscated via AES-256-GCM wrapper.', 'fa-lock');
@@ -6720,7 +6741,7 @@ window.toggleStorageEncryption = function(enabled) {
 };
 
 // 11. Clear all cache variables and reset
-window.clearAllCache = function() {
+window.clearAllCache = function () {
     if (confirm("Are you sure you want to clear all local storage, search logs, and personalized settings? This will trigger a system respring.")) {
         localStorage.clear();
         showToast('Local sandbox states cleared successfully.', 'fa-check');
@@ -6729,35 +6750,35 @@ window.clearAllCache = function() {
 };
 
 // 12. Provider Permissions Toggle
-window.toggleProvider = function(provider, enabled) {
+window.toggleProvider = function (provider, enabled) {
     localStorage.setItem(`privacy_provider_${provider}`, enabled ? 'true' : 'false');
     showToast(`${provider.toUpperCase()} integration permission ${enabled ? 'granted' : 'revoked'}.`, enabled ? 'fa-check-circle' : 'fa-exclamation-triangle');
 };
 
 // 13. Dynamic Proxy selection
-window.handleProxySelectChange = function() {
+window.handleProxySelectChange = function () {
     const select = document.getElementById('privacy-proxy-select');
     const customWrapper = document.getElementById('custom-proxy-input-wrapper');
     if (!select) return;
-    
+
     const value = select.value;
     localStorage.setItem('privacy_proxy_select', value);
-    
+
     if (value === 'custom') {
         if (customWrapper) customWrapper.style.display = 'flex';
     } else {
         if (customWrapper) customWrapper.style.display = 'none';
     }
-    
+
     showToast(`CORS Request proxy set to ${select.options[select.selectedIndex].text}.`, 'fa-server');
 };
 
 // 14. Ping integration diagnostic test
-window.pingService = function(service, url) {
+window.pingService = function (service, url) {
     const badge = document.getElementById(`status-badge-${service}`);
     const latencyEl = document.getElementById(`latency-val-${service}`);
     const btn = document.querySelector(`#diagnostic-row-${service} .ping-btn`);
-    
+
     if (badge) {
         badge.className = 'badge-status-gray';
         badge.innerText = 'Testing...';
@@ -6768,62 +6789,62 @@ window.pingService = function(service, url) {
         btn.innerHTML = '<i class="fas fa-spinner"></i> Pinging';
         btn.disabled = true;
     }
-    
+
     const start = Date.now();
-    
+
     // Perform fetch with custom headers to prevent browser caching
     fetch(url, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
-    .then(() => {
-        const delay = Date.now() - start;
-        if (badge) {
-            badge.className = 'badge-status-green';
-            badge.innerText = 'Connected';
-        }
-        if (latencyEl) latencyEl.innerText = `${delay} ms`;
-    })
-    .catch((err) => {
-        // If blocked by settings directly in fetch
-        if (localStorage.getItem(`privacy_provider_${service}`) === 'false') {
-            if (badge) {
-                badge.className = 'badge-status-red';
-                badge.innerText = 'Blocked';
-            }
-            if (latencyEl) latencyEl.innerText = 'Permission Denied';
-            return;
-        }
-        
-        // Mode no-cors will succeed even if server blocks it (since opaque response).
-        // If it throws an actual exception, it means network offline or dns resolution issue.
-        const delay = Date.now() - start;
-        if (delay < 5000) {
+        .then(() => {
+            const delay = Date.now() - start;
             if (badge) {
                 badge.className = 'badge-status-green';
                 badge.innerText = 'Connected';
             }
             if (latencyEl) latencyEl.innerText = `${delay} ms`;
-        } else {
-            if (badge) {
-                badge.className = 'badge-status-red';
-                badge.innerText = 'Offline/Failed';
+        })
+        .catch((err) => {
+            // If blocked by settings directly in fetch
+            if (localStorage.getItem(`privacy_provider_${service}`) === 'false') {
+                if (badge) {
+                    badge.className = 'badge-status-red';
+                    badge.innerText = 'Blocked';
+                }
+                if (latencyEl) latencyEl.innerText = 'Permission Denied';
+                return;
             }
-            if (latencyEl) latencyEl.innerText = 'Timeout';
-        }
-    })
-    .finally(() => {
-        if (btn) {
-            btn.classList.remove('pinging');
-            btn.innerHTML = '<i class="fas fa-bolt"></i> Ping';
-            btn.disabled = false;
-        }
-    });
+
+            // Mode no-cors will succeed even if server blocks it (since opaque response).
+            // If it throws an actual exception, it means network offline or dns resolution issue.
+            const delay = Date.now() - start;
+            if (delay < 5000) {
+                if (badge) {
+                    badge.className = 'badge-status-green';
+                    badge.innerText = 'Connected';
+                }
+                if (latencyEl) latencyEl.innerText = `${delay} ms`;
+            } else {
+                if (badge) {
+                    badge.className = 'badge-status-red';
+                    badge.innerText = 'Offline/Failed';
+                }
+                if (latencyEl) latencyEl.innerText = 'Timeout';
+            }
+        })
+        .finally(() => {
+            if (btn) {
+                btn.classList.remove('pinging');
+                btn.innerHTML = '<i class="fas fa-bolt"></i> Ping';
+                btn.disabled = false;
+            }
+        });
 };
 
 // 15. Load settings into UI on boot
-window.loadPrivacySettings = function() {
+window.loadPrivacySettings = function () {
     // Restore theme
     const activeTheme = localStorage.getItem('privacy_theme') || 'default';
     document.documentElement.setAttribute('data-theme', activeTheme);
-    
+
     const chips = document.querySelectorAll('.theme-chip');
     chips.forEach(chip => {
         if (chip.getAttribute('data-theme') === activeTheme) {
@@ -6832,17 +6853,17 @@ window.loadPrivacySettings = function() {
             chip.classList.remove('active');
         }
     });
-    
+
     // Restore username and bio
     const savedName = localStorage.getItem('privacy_username') || '';
     const savedBio = localStorage.getItem('privacy_bio') || '';
-    
+
     const uInput = document.getElementById('privacy-username');
     const bInput = document.getElementById('privacy-bio');
-    
+
     if (uInput) uInput.value = savedName;
     if (bInput) bInput.value = savedBio;
-    
+
     if (savedName) {
         const hName = document.querySelector('.hero-name');
         if (hName) hName.innerText = savedName;
@@ -6851,19 +6872,19 @@ window.loadPrivacySettings = function() {
         const bioEl = document.getElementById('bio-text');
         if (bioEl) bioEl.innerText = savedBio;
     }
-    
+
     // Restore switches
     const mouseTrailVal = localStorage.getItem('privacy_mouse_trail') !== 'false';
     const trailSwitch = document.getElementById('privacy-mouse-trail');
     if (trailSwitch) trailSwitch.checked = mouseTrailVal;
-    
+
     const reduceMotionVal = localStorage.getItem('privacy_reduce_motion') === 'true';
     const motionSwitch = document.getElementById('privacy-reduce-motion');
     if (motionSwitch) {
         motionSwitch.checked = reduceMotionVal;
         if (reduceMotionVal) document.body.classList.add('reduce-motion');
     }
-    
+
     const saveHistoryVal = localStorage.getItem('privacy_save_history') !== 'false';
     const historySwitch = document.getElementById('privacy-save-history');
     if (historySwitch) {
@@ -6872,15 +6893,15 @@ window.loadPrivacySettings = function() {
         if (wrapper) wrapper.style.display = saveHistoryVal ? 'block' : 'none';
     }
     updateSearchHistoryUI();
-    
+
     const telemetryVal = localStorage.getItem('privacy_telemetry') === 'true';
     const telemetrySwitch = document.getElementById('privacy-telemetry');
     if (telemetrySwitch) telemetrySwitch.checked = telemetryVal;
-    
+
     const encryptionVal = localStorage.getItem('privacy_encryption') === 'true';
     const encryptionSwitch = document.getElementById('privacy-encryption');
     if (encryptionSwitch) encryptionSwitch.checked = encryptionVal;
-    
+
     // Restore integrations
     const integrations = ['ai', 'tiktok', 'instagram', 'anime', 'games', 'movies'];
     integrations.forEach(provider => {
@@ -6888,17 +6909,17 @@ window.loadPrivacySettings = function() {
         const checkbox = document.getElementById(`privacy-provider-${provider}`);
         if (checkbox) checkbox.checked = val;
     });
-    
+
     // Restore proxy selection
     const proxySelect = localStorage.getItem('privacy_proxy_select') || 'allorigins';
     const selectEl = document.getElementById('privacy-proxy-select');
     if (selectEl) selectEl.value = proxySelect;
-    
+
     const customProxyWrapper = document.getElementById('custom-proxy-input-wrapper');
     if (customProxyWrapper) {
         customProxyWrapper.style.display = (proxySelect === 'custom') ? 'flex' : 'none';
     }
-    
+
     const customProxyVal = localStorage.getItem('privacy_custom_proxy') || '';
     const customProxyInput = document.getElementById('privacy-custom-proxy');
     if (customProxyInput) customProxyInput.value = customProxyVal;
@@ -6919,45 +6940,45 @@ let activeSportsStatusFilter = 'all';
 
 // Pre-fetched fallback categories if API is unavailable
 const fallbackSportsCategories = [
-    {"id":"football","name":"Football"},
-    {"id":"basketball","name":"Basketball"},
-    {"id":"american-football","name":"American Football"},
-    {"id":"hockey","name":"Hockey"},
-    {"id":"baseball","name":"Baseball"},
-    {"id":"motor-sports","name":"Motor Sports"},
-    {"id":"fight","name":"Fight (UFC, Boxing)"},
-    {"id":"tennis","name":"Tennis"},
-    {"id":"rugby","name":"Rugby"},
-    {"id":"golf","name":"Golf"},
-    {"id":"billiards","name":"Billiards"},
-    {"id":"afl","name":"AFL"},
-    {"id":"darts","name":"Darts"},
-    {"id":"cricket","name":"Cricket"},
-    {"id":"other","name":"Other"}
+    { "id": "football", "name": "Football" },
+    { "id": "basketball", "name": "Basketball" },
+    { "id": "american-football", "name": "American Football" },
+    { "id": "hockey", "name": "Hockey" },
+    { "id": "baseball", "name": "Baseball" },
+    { "id": "motor-sports", "name": "Motor Sports" },
+    { "id": "fight", "name": "Fight (UFC, Boxing)" },
+    { "id": "tennis", "name": "Tennis" },
+    { "id": "rugby", "name": "Rugby" },
+    { "id": "golf", "name": "Golf" },
+    { "id": "billiards", "name": "Billiards" },
+    { "id": "afl", "name": "AFL" },
+    { "id": "darts", "name": "Darts" },
+    { "id": "cricket", "name": "Cricket" },
+    { "id": "other", "name": "Other" }
 ];
 
 let sportsClockInterval = null;
 
 function startSportsClock() {
     if (sportsClockInterval) return;
-    
+
     const clockSpan = document.getElementById('sports-current-time');
     if (!clockSpan) return;
-    
+
     const updateTime = () => {
         const now = new Date();
         const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
         const timeStr = now.toLocaleTimeString([], timeOptions);
-        
+
         const offsetMin = -now.getTimezoneOffset();
         const offsetSign = offsetMin >= 0 ? '+' : '-';
         const offsetHours = Math.floor(Math.abs(offsetMin) / 60);
         const offsetMins = Math.abs(offsetMin) % 60;
         const timezoneStr = `GMT${offsetSign}${offsetHours}:${offsetMins.toString().padStart(2, '0')}`;
-        
+
         clockSpan.innerText = `${timeStr} (${timezoneStr})`;
     };
-    
+
     updateTime();
     sportsClockInterval = setInterval(updateTime, 1000);
 }
@@ -6965,7 +6986,7 @@ function startSportsClock() {
 function formatMatchTime(match) {
     const dateVal = match.date || match.time;
     if (!dateVal) return 'Live Now';
-    
+
     let d = null;
     const timestamp = Number(dateVal);
     if (!isNaN(timestamp)) {
@@ -6973,19 +6994,19 @@ function formatMatchTime(match) {
     } else {
         d = new Date(dateVal);
     }
-    
+
     if (d && !isNaN(d.getTime())) {
         try {
             const now = new Date();
             const isToday = d.toDateString() === now.toDateString();
-            
+
             const tomorrow = new Date(now);
             tomorrow.setDate(now.getDate() + 1);
             const isTomorrow = d.toDateString() === tomorrow.toDateString();
-            
+
             const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
             const timeStr = d.toLocaleTimeString([], timeOptions);
-            
+
             // Calculate relative countdown if in the future
             let relativeStr = '';
             const diffMs = d.getTime() - now.getTime();
@@ -6993,7 +7014,7 @@ function formatMatchTime(match) {
                 const diffMins = Math.floor(diffMs / (1000 * 60));
                 const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                 const diffDays = Math.floor(diffHours / 24);
-                
+
                 if (diffMins < 60) {
                     relativeStr = ` (in ${diffMins}m)`;
                 } else if (diffHours < 24) {
@@ -7002,7 +7023,7 @@ function formatMatchTime(match) {
                     relativeStr = ` (in ${diffDays}d)`;
                 }
             }
-            
+
             if (isToday) {
                 return `Today, ${timeStr}${relativeStr}`;
             } else if (isTomorrow) {
@@ -7016,7 +7037,7 @@ function formatMatchTime(match) {
             return String(dateVal);
         }
     }
-    
+
     return String(dateVal);
 }
 
@@ -7024,7 +7045,7 @@ async function loadLiveSportsPortal() {
     startSportsClock();
     const categoriesContainer = document.getElementById('sports-categories');
     if (!categoriesContainer) return;
-    
+
     // Clear details if open
     const detailsContainer = document.getElementById('sports-details');
     if (detailsContainer) detailsContainer.style.display = 'none';
@@ -7044,13 +7065,13 @@ async function loadLiveSportsPortal() {
     }
 
     renderSportsCategories();
-    
+
     // Auto load matches for the first category if none is active
     if (sportsCategoriesList.length > 0) {
         if (!activeSportId) {
             activeSportId = sportsCategoriesList[0].id;
         }
-        
+
         // Highlight active chip
         const chips = document.querySelectorAll('.sports-chip');
         chips.forEach(chip => {
@@ -7088,7 +7109,7 @@ function renderSportsCategories() {
         else if (name.includes('billiards')) iconClass = 'fa-circle';
         else if (name.includes('darts')) iconClass = 'fa-bullseye';
         else if (name.includes('cricket')) iconClass = 'fa-bat';
-        
+
         html += `
             <div class="sports-chip ${cat.id === activeSportId ? 'active' : ''}" data-id="${cat.id}" onclick="selectSportCategory('${cat.id}')">
                 <i class="fas ${iconClass}"></i>
@@ -7101,7 +7122,7 @@ function renderSportsCategories() {
 
 function selectSportCategory(sportId) {
     activeSportId = sportId;
-    
+
     // Highlight chip
     const chips = document.querySelectorAll('.sports-chip');
     chips.forEach(chip => {
@@ -7116,7 +7137,7 @@ function selectSportCategory(sportId) {
     const searchInput = document.getElementById('sports-search-input');
     if (searchInput) searchInput.value = '';
     currentSportsSearch = '';
-    
+
     // Reset status filter
     activeSportsStatusFilter = 'all';
     const filterButtons = document.querySelectorAll('.sports-filter-btn');
@@ -7135,7 +7156,7 @@ async function loadSportsMatches(sportId) {
     showSportsLoader(true, `Loading ${sportId} matches...`);
     const resultsContainer = document.getElementById('sports-results');
     const detailsContainer = document.getElementById('sports-details');
-    
+
     if (resultsContainer) resultsContainer.innerHTML = '';
     if (detailsContainer) detailsContainer.style.display = 'none';
     if (resultsContainer) resultsContainer.style.display = 'grid';
@@ -7177,7 +7198,7 @@ function renderSportsMatches(matches) {
         let awayName = 'Team B';
         let homeBadge = '';
         let awayBadge = '';
-        
+
         if (match.teams) {
             if (match.teams.home) {
                 homeName = match.teams.home.name || match.teams.home;
@@ -7209,13 +7230,13 @@ function renderSportsMatches(matches) {
 
         // Status
         const isLive = match.live || match.status?.toLowerCase() === 'live' || match.isLive;
-        const statusHtml = isLive 
+        const statusHtml = isLive
             ? '<span class="match-status-badge live"><span class="pulse-dot"></span> LIVE</span>'
             : '<span class="match-status-badge upcoming"><i class="far fa-clock"></i> Upcoming</span>';
 
         // Time
         const matchTimeStr = formatMatchTime(match);
-        const timeIconHtml = isLive 
+        const timeIconHtml = isLive
             ? '<i class="fas fa-broadcast-tower pulse-icon" style="color: #ef4444;"></i>'
             : '<i class="fas fa-calendar-alt"></i>';
 
@@ -7313,7 +7334,7 @@ function searchSportsMatches() {
 
 function setSportsStatusFilter(filterValue) {
     activeSportsStatusFilter = filterValue;
-    
+
     // Update active class on buttons
     const filterButtons = document.querySelectorAll('.sports-filter-btn');
     filterButtons.forEach(btn => {
@@ -7323,16 +7344,16 @@ function setSportsStatusFilter(filterValue) {
             btn.classList.remove('active');
         }
     });
-    
+
     filterAndRenderSportsMatches();
 }
 
 function filterAndRenderSportsMatches() {
     const searchInput = document.getElementById('sports-search-input');
     const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-    
+
     let filtered = sportsMatchesList;
-    
+
     // Filter by search query
     if (query) {
         filtered = filtered.filter(match => {
@@ -7342,14 +7363,14 @@ function filterAndRenderSportsMatches() {
             return title.includes(query) || home.includes(query) || away.includes(query);
         });
     }
-    
+
     // Filter by status (All, Live, Upcoming)
     if (activeSportsStatusFilter === 'live') {
         filtered = filtered.filter(match => match.live || match.status?.toLowerCase() === 'live' || match.isLive);
     } else if (activeSportsStatusFilter === 'upcoming') {
         filtered = filtered.filter(match => !(match.live || match.status?.toLowerCase() === 'live' || match.isLive));
     }
-    
+
     renderSportsMatches(filtered);
 }
 
@@ -7374,13 +7395,13 @@ async function viewMatchDetails(matchId) {
 
     resultsContainer.style.display = 'none';
     detailsContainer.style.display = 'block';
-    
+
     // Parse team details and badges
     let homeName = 'Team A';
     let awayName = 'Team B';
     let homeBadge = '';
     let awayBadge = '';
-    
+
     if (match.teams) {
         if (match.teams.home) {
             homeName = match.teams.home.name || match.teams.home;
@@ -7530,7 +7551,7 @@ async function viewMatchDetails(matchId) {
         `;
     });
     sourcesGrid.innerHTML = sourcesHtml;
-    
+
     // Automatically trigger the first server
     const firstServerBtn = sourcesGrid.querySelector('.ks-server-btn');
     if (firstServerBtn) {
@@ -7562,14 +7583,14 @@ async function fetchSportsStreamLinks(source, id, serverName, btnElement) {
     optionsContainer.innerHTML = '<div style="color: rgba(255,255,255,0.4); padding: 5px;">Fetching broadcast links...</div>';
     if (iframeWrapper) iframeWrapper.style.display = 'none';
     if (iframe) iframe.src = 'about:blank';
-    
+
     activeStreamUrl = '';
 
     try {
         const res = await fetch(`https://streamed.pk/api/stream/${source}/${id}`);
         if (!res.ok) throw new Error('API failed');
         const streams = await res.json();
-        
+
         let streamsArray = [];
         if (Array.isArray(streams)) {
             streamsArray = streams;
@@ -7582,13 +7603,13 @@ async function fetchSportsStreamLinks(source, id, serverName, btnElement) {
         }
 
         optionsContainer.innerHTML = '';
-        
+
         streamsArray.forEach((stream, idx) => {
             const streamNo = stream.streamNo || (idx + 1);
             const language = stream.language || 'English';
             const qualityLabel = stream.hd ? 'HD' : 'SD';
             const embedUrl = stream.embedUrl || stream.url || stream.link || stream;
-            
+
             const btn = document.createElement('button');
             btn.className = 'sports-chip';
             btn.innerHTML = `
@@ -7599,19 +7620,19 @@ async function fetchSportsStreamLinks(source, id, serverName, btnElement) {
                 // Remove active from other chips
                 optionsContainer.querySelectorAll('.sports-chip').forEach(c => c.classList.remove('active'));
                 btn.classList.add('active');
-                
+
                 // Set and load stream
                 activeStreamUrl = embedUrl;
                 playerSection.style.display = 'block';
                 serverLabel.innerText = `${serverName} - Option #${streamNo} (${language})`;
-                
+
                 if (extBtn) {
                     extBtn.setAttribute('onclick', `window.open('${embedUrl}', '_blank'); showToast('Opening stream externally', 'fa-external-link-alt');`);
                 }
-                
+
                 playSportsStreamInApp();
             };
-            
+
             optionsContainer.appendChild(btn);
         });
 
@@ -7638,7 +7659,7 @@ function playSportsStreamInApp() {
 
     iframeWrapper.style.display = 'block';
     iframe.src = activeStreamUrl;
-    
+
     // Smooth scroll player into view
     iframeWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -7684,7 +7705,7 @@ function toggleSportsTheaterMode() {
 function toggleSportsFullscreen() {
     const wrapper = document.getElementById('sports-iframe-wrapper');
     if (!wrapper) return;
-    
+
     if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
         if (wrapper.requestFullscreen) {
             wrapper.requestFullscreen();
@@ -7745,71 +7766,71 @@ function initTempMail() {
 async function generateNewMailAccount() {
     updateTempMailStatus('loading', 'Fetching active domains...');
     document.getElementById('temp-mail-address').innerText = 'Generating...';
-    
+
     try {
         // Step 1: Fetch domains
         const domainsRes = await fetch('https://api.mail.tm/domains');
         const domainsData = await domainsRes.json();
         const activeDomains = domainsData['hydra:member'] || domainsData;
-        
+
         if (!activeDomains || activeDomains.length === 0) {
             throw new Error("No active domains returned from Mail.tm");
         }
-        
+
         const selectedDomain = activeDomains[0].domain;
-        
+
         // Step 2: Create random credentials
         const randomString = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 7);
         const address = `${randomString}@${selectedDomain}`;
         const password = Math.random().toString(36).substring(2, 15) + "A1!"; // strong password
-        
+
         updateTempMailStatus('loading', 'Registering inbox account...');
-        
+
         // Step 3: Register Account
         const registerRes = await fetch('https://api.mail.tm/accounts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ address, password })
         });
-        
+
         if (!registerRes.ok) {
             const errDetail = await registerRes.text();
             throw new Error(`Failed to create account: ${errDetail}`);
         }
-        
+
         const registerData = await registerRes.json();
         const accountId = registerData.id;
-        
+
         updateTempMailStatus('loading', 'Authenticating session token...');
-        
+
         // Step 4: Obtain token
         const tokenRes = await fetch('https://api.mail.tm/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ address, password })
         });
-        
+
         if (!tokenRes.ok) {
             throw new Error("Authentication failed after account registration");
         }
-        
+
         const tokenData = await tokenRes.json();
         const token = tokenData.token;
-        
+
         // Step 5: Save locally
         tempMailAccount = { id: accountId, address, password, token };
         localStorage.setItem('temp_mail_account', JSON.stringify(tempMailAccount));
-        
+
         // Step 6: Render in UI
         document.getElementById('temp-mail-address').innerText = address;
         updateTempMailStatus('listening', 'Mailbox active & listening');
         showToast('Temporary Email Created!', 'fa-envelope-open');
-        
+
         // Step 7: Fetch and poll
         tempMailInbox = [];
         renderTempInbox();
         startInboxPolling();
-        
+
     } catch (err) {
         console.error("Temp mail generation failure:", err);
         updateTempMailStatus('error', 'Mailbox initialization failed');
@@ -7823,9 +7844,9 @@ function updateTempMailStatus(state, message) {
     const pulseDot = document.getElementById('temp-mail-pulse');
     const statusText = document.getElementById('temp-mail-status-text');
     if (!pulseDot || !statusText) return;
-    
+
     statusText.innerText = message;
-    
+
     if (state === 'listening') {
         pulseDot.className = 'pulse-glow-green';
         pulseDot.style.background = '#4ade80';
@@ -7854,7 +7875,7 @@ function copyTempMailAddress() {
 // Fetch messages list from Mail.tm
 async function fetchTempMessages() {
     if (!tempMailAccount || !tempMailAccount.token) return;
-    
+
     try {
         const res = await fetch('https://api.mail.tm/messages', {
             method: 'GET',
@@ -7863,7 +7884,7 @@ async function fetchTempMessages() {
                 'Accept': 'application/json'
             }
         });
-        
+
         if (!res.ok) {
             // Handle invalid token / expired account
             if (res.status === 401) {
@@ -7872,12 +7893,12 @@ async function fetchTempMessages() {
             }
             return;
         }
-        
+
         const data = await res.json();
         // Mail.tm returns message resource items in standard JSON
         tempMailInbox = data['hydra:member'] || data || [];
         renderTempInbox();
-        
+
     } catch (err) {
         console.error("Error checking mailbox updates:", err);
     }
@@ -7892,7 +7913,7 @@ function startInboxPolling() {
 // Helper to get initials and random colorful gradient avatar
 function getInitialsAvatar(name) {
     if (!name) return '<div class="mail-avatar" style="background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);"><i class="fas fa-user"></i></div>';
-    
+
     // Extract name before brackets or email addresses
     const cleanName = name.replace(/<.*>/, '').trim();
     const parts = cleanName.split(' ');
@@ -7900,7 +7921,7 @@ function getInitialsAvatar(name) {
     if (parts.length > 0 && parts[0]) initials += parts[0].charAt(0).toUpperCase();
     if (parts.length > 1 && parts[1]) initials += parts[1].charAt(0).toUpperCase();
     if (!initials) initials = '?';
-    
+
     // Choose dynamic gradient color pair based on simple string hashing
     let hash = 0;
     for (let i = 0; i < cleanName.length; i++) {
@@ -7914,7 +7935,7 @@ function getInitialsAvatar(name) {
         ['#06b6d4', '#3b82f6']  // Cyan-Blue
     ];
     const pair = colors[Math.abs(hash) % colors.length];
-    
+
     return `<div class="mail-avatar" style="background: linear-gradient(135deg, ${pair[0]} 0%, ${pair[1]} 100%);">${initials}</div>`;
 }
 
@@ -7923,9 +7944,9 @@ function renderTempInbox() {
     const inboxList = document.getElementById('temp-mail-inbox');
     const countBadge = document.getElementById('temp-mail-count');
     if (!inboxList || !countBadge) return;
-    
+
     countBadge.innerText = `${tempMailInbox.length} messages`;
-    
+
     if (tempMailInbox.length === 0) {
         inboxList.innerHTML = `
             <div class="inbox-empty-state">
@@ -7935,7 +7956,7 @@ function renderTempInbox() {
             </div>`;
         return;
     }
-    
+
     let html = '';
     tempMailInbox.forEach(msg => {
         const dateStr = new Date(msg.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -7944,7 +7965,7 @@ function renderTempInbox() {
         const subject = msg.subject || '(No Subject)';
         const preview = msg.intro || '';
         const avatarHtml = getInitialsAvatar(fromAddr);
-        
+
         html += `
             <div class="mail-card ${unreadClass}" onclick="openTempMessage('${msg.id}')">
                 <div class="mail-card-layout">
@@ -7960,16 +7981,16 @@ function renderTempInbox() {
                 </div>
             </div>`;
     });
-    
+
     inboxList.innerHTML = html;
 }
 
 // Open message detail modal
 async function openTempMessage(id) {
     if (!tempMailAccount || !tempMailAccount.token) return;
-    
+
     showToast('Opening message details...', 'fa-envelope-open');
-    
+
     try {
         const res = await fetch(`https://api.mail.tm/messages/${id}`, {
             method: 'GET',
@@ -7978,36 +7999,36 @@ async function openTempMessage(id) {
                 'Accept': 'application/json'
             }
         });
-        
+
         if (!res.ok) throw new Error("Failed to retrieve email content from server");
-        
+
         const msg = await res.json();
         currentMailMessage = msg;
-        
+
         // Set seen to true locally and update indices
         const idx = tempMailInbox.findIndex(m => m.id === id);
         if (idx !== -1) {
             tempMailInbox[idx].seen = true;
             renderTempInbox();
         }
-        
+
         // Show reading modal
         document.getElementById('temp-mail-reader-modal').style.display = 'flex';
-        
+
         // Populate header details
         const fromAddr = msg.from ? `${msg.from.name || ''} <${msg.from.address}>` : 'Unknown Sender';
         document.getElementById('mail-reader-from').innerText = fromAddr;
         document.getElementById('mail-reader-date').innerText = new Date(msg.createdAt).toLocaleString();
         document.getElementById('mail-reader-subject').innerText = msg.subject || '(No Subject)';
-        
+
         // Select best rendering mode (HTML or raw text)
         const iframe = document.getElementById('temp-mail-body-iframe');
         const textPanel = document.getElementById('temp-mail-body-raw');
-        
+
         if (msg.html && msg.html.length > 0) {
             textPanel.style.display = 'none';
             iframe.style.display = 'block';
-            
+
             // Set frame srcdoc dynamically to isolate styles securely
             iframe.srcdoc = `
                 <!DOCTYPE html>
@@ -8036,11 +8057,11 @@ async function openTempMessage(id) {
             textPanel.style.display = 'block';
             textPanel.innerText = msg.text || '';
         }
-        
+
         // Populate attachments if any
         const attachmentsPanel = document.getElementById('mail-reader-attachments');
         const attachmentsList = document.getElementById('mail-reader-attachments-list');
-        
+
         if (msg.attachments && msg.attachments.length > 0) {
             attachmentsPanel.style.display = 'flex';
             let attachHtml = '';
@@ -8058,7 +8079,7 @@ async function openTempMessage(id) {
             attachmentsPanel.style.display = 'none';
             attachmentsList.innerHTML = '';
         }
-        
+
         // Mark message as read on server asynchronously
         fetch(`https://api.mail.tm/messages/${id}`, {
             method: 'PATCH',
@@ -8068,7 +8089,7 @@ async function openTempMessage(id) {
             },
             body: JSON.stringify({ seen: true })
         }).catch(e => console.warn("Failed to mark message as read on server:", e));
-        
+
     } catch (err) {
         console.error("Open message failure:", err);
         showToast('Error opening email.', 'fa-exclamation-triangle');
@@ -8079,7 +8100,7 @@ async function openTempMessage(id) {
 function closeTempMailReader() {
     document.getElementById('temp-mail-reader-modal').style.display = 'none';
     currentMailMessage = null;
-    
+
     // Clear out iframe to avoid leakage
     const iframe = document.getElementById('temp-mail-body-iframe');
     if (iframe) iframe.srcdoc = '';
@@ -8088,10 +8109,10 @@ function closeTempMailReader() {
 // Delete message from server
 async function deleteCurrentMessage() {
     if (!currentMailMessage || !tempMailAccount || !tempMailAccount.token) return;
-    
+
     const id = currentMailMessage.id;
     showToast('Deleting email message...', 'fa-trash-alt');
-    
+
     try {
         const res = await fetch(`https://api.mail.tm/messages/${id}`, {
             method: 'DELETE',
@@ -8099,15 +8120,15 @@ async function deleteCurrentMessage() {
                 'Authorization': `Bearer ${tempMailAccount.token}`
             }
         });
-        
+
         if (!res.ok) throw new Error("Delete endpoint failed");
-        
+
         // Filter out from local arrays
         tempMailInbox = tempMailInbox.filter(m => m.id !== id);
         renderTempInbox();
         closeTempMailReader();
         showToast('Message Deleted!', 'fa-trash');
-        
+
     } catch (err) {
         console.error("Error deleting email:", err);
         showToast('Failed to delete email.', 'fa-exclamation-triangle');
@@ -8127,7 +8148,7 @@ function regenerateTempMail() {
 // Manually trigger check for emails and reset the dynamic loader bar
 async function manualCheckTempMail() {
     updateTempMailStatus('loading', 'Checking for messages...');
-    
+
     // Animate/Reset the poll bar fill
     const pollBarFill = document.querySelector('.temp-mail-poll-bar-fill');
     if (pollBarFill) {
@@ -8135,9 +8156,9 @@ async function manualCheckTempMail() {
         void pollBarFill.offsetWidth; // force element reflow layout recalculation
         pollBarFill.style.animation = 'tempMailPollProgress 10s linear infinite';
     }
-    
+
     await fetchTempMessages();
-    
+
     updateTempMailStatus('listening', 'Mailbox active & listening');
     showToast('Inbox Refreshed Successfully', 'fa-sync');
 }
@@ -8148,7 +8169,7 @@ function forwardCurrentMessage() {
     const subject = encodeURIComponent(`Fwd: ${currentMailMessage.subject || ''}`);
     const bodyText = `---------- Forwarded message ---------\nFrom: ${currentMailMessage.from ? (currentMailMessage.from.name || currentMailMessage.from.address) : 'Unknown Sender'}\nDate: ${new Date(currentMailMessage.createdAt).toLocaleString()}\nSubject: ${currentMailMessage.subject || ''}\n\n${currentMailMessage.text || ''}`;
     const body = encodeURIComponent(bodyText);
-    
+
     // Open system handler
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
     showToast('Launching mail client to forward/resend...', 'fa-share');

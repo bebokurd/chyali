@@ -95,6 +95,12 @@
         <priority>0.8</priority>
     </url>
     <url>
+        <loc>https://bebokurd.github.io/#installed/emulators</loc>
+        <lastmod>2026-05-30</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
         <loc>https://bebokurd.github.io/#installed/mods</loc>
         <lastmod>2026-05-30</lastmod>
         <changefreq>weekly</changefreq>

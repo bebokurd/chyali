@@ -2006,5 +2006,325 @@
         "url": "https://arena.ai/",
         "icon": "fas fa-robot",
         "id": "arena-ai-1777461800012"
+    },
+    {
+        "name": "RetroArch",
+        "desc": "Versatile frontend for emulators, game engines, and media players with a unified interface.",
+        "cat": "emulators",
+        "url": "https://www.retroarch.com/",
+        "icon": "https://m.media-amazon.com/images/I/31fvrQVPcfL.png",
+        "id": "retroarch-emu"
+    },
+    {
+        "name": "PCSX2",
+        "desc": "Highly compatible and open-source PlayStation 2 (PS2) emulator for Windows, Linux, and macOS.",
+        "cat": "emulators",
+        "url": "https://pcsx2.net/",
+        "icon": "https://www.google.com/s2/favicons?domain=pcsx2.net&sz=64",
+        "id": "pcsx2-emu"
+    },
+    {
+        "name": "Dolphin",
+        "desc": "Powerful emulator for Nintendo GameCube and Wii consoles, supporting HD resolutions and enhancements.",
+        "cat": "emulators",
+        "url": "https://dolphin-emu.org/",
+        "icon": "https://www.google.com/s2/favicons?domain=dolphin-emu.org&sz=64",
+        "id": "dolphin-emu"
+    },
+    {
+        "name": "DuckStation",
+        "desc": "Sony PlayStation 1 (PSX) emulator focusing on playability, high performance, and visual improvements.",
+        "cat": "emulators",
+        "url": "https://github.com/stenzek/duckstation",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "duckstation-emu"
+    },
+    {
+        "name": "PPSSPP",
+        "desc": "Fast, portable, and open-source PlayStation Portable (PSP) emulator for multiple desktop and mobile OSs.",
+        "cat": "emulators",
+        "url": "https://www.ppsspp.org/",
+        "icon": "https://www.google.com/s2/favicons?domain=ppsspp.org&sz=64",
+        "id": "ppsspp-emu"
+    },
+    {
+        "name": "RPCS3",
+        "desc": "An open-source Sony PlayStation 3 (PS3) emulator and debugger built in C++.",
+        "cat": "emulators",
+        "url": "https://rpcs3.net/",
+        "icon": "https://www.google.com/s2/favicons?domain=rpcs3.net&sz=64",
+        "id": "rpcs3-emu"
+    },
+    {
+        "name": "Ryujinx",
+        "desc": "Open-source Nintendo Switch emulator offering high compatibility, precision, and performance.",
+        "cat": "emulators",
+        "url": "https://github.com/Ryujinx/Ryujinx",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "ryujinx-emu"
+    },
+    {
+        "name": "Cemu",
+        "desc": "Highly optimized Wii U emulator capable of running major titles in high resolutions with custom mods.",
+        "cat": "emulators",
+        "url": "https://cemu.info/",
+        "icon": "https://www.google.com/s2/favicons?domain=cemu.info&sz=64",
+        "id": "cemu-emu"
+    },
+    {
+        "name": "Xenia",
+        "desc": "An experimental, open-source emulator for the Xbox 360 console.",
+        "cat": "emulators",
+        "url": "https://xenia.jp/",
+        "icon": "https://www.google.com/s2/favicons?domain=xenia.jp&sz=64",
+        "id": "xenia-emu"
+    },
+    {
+        "name": "Xemu",
+        "desc": "A free, open-source, and cross-platform original Xbox emulator built on top of QEMU.",
+        "cat": "emulators",
+        "url": "https://xemu.app/",
+        "icon": "https://www.google.com/s2/favicons?domain=xemu.app&sz=64",
+        "id": "xemu-emu"
+    },
+    {
+        "name": "MelonDS",
+        "desc": "A clean and fast Nintendo DS and DSi emulator focusing on performance and accurate emulation.",
+        "cat": "emulators",
+        "url": "https://melonds.kuribo64.net/",
+        "icon": "https://www.google.com/s2/favicons?domain=melonds.kuribo64.net&sz=64",
+        "id": "melonds-emu"
+    },
+    {
+        "name": "Mesen",
+        "desc": "High-accuracy multi-system emulator for NES, SNES, Game Boy, PC Engine, and more.",
+        "cat": "emulators",
+        "url": "https://www.mesen.ca/",
+        "icon": "https://www.google.com/s2/favicons?domain=mesen.ca&sz=64",
+        "id": "mesen-emu"
+    },
+    {
+        "name": "Azahar",
+        "desc": "Modern, open-source Nintendo 3DS emulator succeeding Citra and Lime3DS with enhanced features.",
+        "cat": "emulators",
+        "url": "https://github.com/azahar-emu/azahar",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "azahar-emu"
+    },
+    {
+        "name": "Snes9x",
+        "desc": "Portable, freeware Super Nintendo Entertainment System (SNES) emulator with high game compatibility.",
+        "cat": "emulators",
+        "url": "https://www.snes9x.com/",
+        "icon": "https://www.google.com/s2/favicons?domain=snes9x.com&sz=64",
+        "id": "snes9x-emu"
+    },
+    {
+        "name": "Nestopia",
+        "desc": "A high-accuracy Nintendo Entertainment System (NES) emulator with extensive mapper support.",
+        "cat": "emulators",
+        "url": "https://github.com/rdanbrook/nestopia",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "nestopia-emu"
+    },
+    {
+        "name": "Mupen64Plus Next",
+        "desc": "Next-generation Nintendo 64 (N64) emulator core designed specifically for RetroArch.",
+        "cat": "emulators",
+        "url": "https://github.com/libretro/mupen64plus-libretro-nx",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "mupen64plus-next-emu"
+    },
+    {
+        "name": "Project64",
+        "desc": "A classic and easy-to-use Nintendo 64 (N64) emulator for Windows PCs.",
+        "cat": "emulators",
+        "url": "https://www.pj64-emu.com/",
+        "icon": "https://www.google.com/s2/favicons?domain=pj64-emu.com&sz=64",
+        "id": "project64-emu"
+    },
+    {
+        "name": "Final Burn Neo",
+        "desc": "Multi-system arcade emulator supporting Neo-Geo, Capcom CPS1/2/3, Sega, and more.",
+        "cat": "emulators",
+        "url": "https://github.com/finalburnneo/FBNeo",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "final-burn-neo-emu"
+    },
+    {
+        "name": "VBA Next",
+        "desc": "Optimized Game Boy Advance (GBA) emulator core based on VisualBoyAdvance-M.",
+        "cat": "emulators",
+        "url": "https://github.com/libretro/vba-next",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "vba-next-emu"
+    },
+    {
+        "name": "Genesis Plus GX",
+        "desc": "An open-source Sega Genesis, Mega Drive, Sega CD, and Master System emulator core.",
+        "cat": "emulators",
+        "url": "https://github.com/ekeeke/Genesis-Plus-GX",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "genesis-plus-gx-emu"
+    },
+    {
+        "name": "PicoDrive",
+        "desc": "Fast Sega 16-bit, 32X, and Sega CD emulator optimized for mobile and low-spec platforms.",
+        "cat": "emulators",
+        "url": "https://github.com/notaz/picodrive",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "picodrive-emu"
+    },
+    {
+        "name": "Beetle Saturn",
+        "desc": "High-accuracy Sega Saturn emulator core for RetroArch based on Mednafen.",
+        "cat": "emulators",
+        "url": "https://github.com/libretro/beetle-saturn-libretro",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "beetle-saturn-emu"
+    },
+    {
+        "name": "Flycast",
+        "desc": "A multi-platform Sega Dreamcast, Naomi, and Atomiswave emulator for desktop and mobile.",
+        "cat": "emulators",
+        "url": "https://github.com/flyinghead/flycast",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "flycast-emu"
+    },
+    {
+        "name": "Beetle PCE",
+        "desc": "Fast and accurate PC Engine (TurboGrafx-16) emulator core for RetroArch.",
+        "cat": "emulators",
+        "url": "https://github.com/libretro/beetle-pce-fast-libretro",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "beetle-pce-emu"
+    },
+    {
+        "name": "AetherSX2",
+        "desc": "PlayStation 2 (PS2) emulator for Android devices, providing high performance on ARM64.",
+        "cat": "emulators",
+        "url": "https://www.aethersx2.com/",
+        "icon": "https://www.google.com/s2/favicons?domain=aethersx2.com&sz=64",
+        "id": "aethersx2-emu"
+    },
+    {
+        "name": "Redream",
+        "desc": "High-definition Sega Dreamcast emulator available for Windows, macOS, Linux, and Android.",
+        "cat": "emulators",
+        "url": "https://redream.io/",
+        "icon": "https://www.google.com/s2/favicons?domain=redream.io&sz=64",
+        "id": "redream-emu"
+    },
+    {
+        "name": "DeSmuME",
+        "desc": "Nintendo DS (NDS) emulator designed for PC, supporting dual-screen layouts and scaling filters.",
+        "cat": "emulators",
+        "url": "http://desmume.org/",
+        "icon": "https://www.google.com/s2/favicons?domain=desmume.org&sz=64",
+        "id": "desmume-emu"
+    },
+    {
+        "name": "Citra",
+        "desc": "The legendary, open-source Nintendo 3DS emulator that pioneered high-fidelity 3DS emulation.",
+        "cat": "emulators",
+        "url": "https://github.com/citra-emu/citra",
+        "icon": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+        "id": "citra-emu"
+    },
+    {
+        "name": "MAME",
+        "desc": "Multiple Arcade Machine Emulator dedicated to preserving thousands of classic arcade games.",
+        "cat": "emulators",
+        "url": "https://www.mamedev.org/",
+        "icon": "https://www.google.com/s2/favicons?domain=mamedev.org&sz=64",
+        "id": "mame-emu"
+    },
+    {
+        "name": "DOSBox",
+        "desc": "An emulator that recreates an MS-DOS environment to run classic DOS games and applications.",
+        "cat": "emulators",
+        "url": "https://www.dosbox.com/",
+        "icon": "https://www.google.com/s2/favicons?domain=dosbox.com&sz=64",
+        "id": "dosbox-emu"
+    },
+    {
+        "name": "BlueStacks",
+        "desc": "Extremely popular Android gaming platform for PC and Mac with keyboard/mouse controls.",
+        "cat": "emulators",
+        "url": "https://www.bluestacks.com/",
+        "icon": "https://www.google.com/s2/favicons?domain=bluestacks.com&sz=64",
+        "id": "bluestacks-emu"
+    },
+    {
+        "name": "LDPlayer 9",
+        "desc": "High-performance Android emulator designed to run mobile games smoothly on Windows PCs.",
+        "cat": "emulators",
+        "url": "https://www.ldplayer.net/",
+        "icon": "https://www.google.com/s2/favicons?domain=ldplayer.net&sz=64",
+        "id": "ldplayer9-emu"
+    },
+    {
+        "name": "LDPlayer 14",
+        "desc": "Latest iteration of LDPlayer Android emulator with improved engine capability and lower resource usage.",
+        "cat": "emulators",
+        "url": "https://www.ldplayer.net/",
+        "icon": "https://www.google.com/s2/favicons?domain=ldplayer.net&sz=64",
+        "id": "ldplayer14-emu"
+    },
+    {
+        "name": "MuMu Player",
+        "desc": "Android emulator developed by NetEase, optimized for premium graphic quality and high FPS.",
+        "cat": "emulators",
+        "url": "https://www.mumuplayer.com/",
+        "icon": "https://www.google.com/s2/favicons?domain=mumuplayer.com&sz=64",
+        "id": "mumuplayer-emu"
+    },
+    {
+        "name": "NoxPlayer",
+        "desc": "Feature-rich Android emulator with advanced mapping, multi-instance, and macro recording tools.",
+        "cat": "emulators",
+        "url": "https://www.bignox.com/",
+        "icon": "https://www.google.com/s2/favicons?domain=bignox.com&sz=64",
+        "id": "noxplayer-emu"
+    },
+    {
+        "name": "MEmu Play",
+        "desc": "Fast Android emulator with excellent compatibility for running multiple mobile games simultaneously on PC.",
+        "cat": "emulators",
+        "url": "https://www.memuplay.com/",
+        "icon": "https://www.google.com/s2/favicons?domain=memuplay.com&sz=64",
+        "id": "memuplay-emu"
+    },
+    {
+        "name": "GameLoop",
+        "desc": "Tencent's official PC Android emulator, tailored specifically for competitive mobile shooters.",
+        "cat": "emulators",
+        "url": "https://www.gameloop.com/",
+        "icon": "https://www.google.com/s2/favicons?domain=gameloop.com&sz=64",
+        "id": "gameloop-emu"
+    },
+    {
+        "name": "Android Studio Emulator",
+        "desc": "Google's official Android Virtual Device (AVD) emulator, ideal for app development and testing.",
+        "cat": "emulators",
+        "url": "https://developer.android.com/studio/run/emulator",
+        "icon": "https://www.google.com/s2/favicons?domain=developer.android.com&sz=64",
+        "id": "android-studio-emulator"
+    },
+    {
+        "name": "Genymotion",
+        "desc": "Professional Android emulator in the cloud and desktop, optimized for developers and QA automation.",
+        "cat": "emulators",
+        "url": "https://www.genymotion.com/",
+        "icon": "https://www.google.com/s2/favicons?domain=genymotion.com&sz=64",
+        "id": "genymotion-emu"
+    },
+    {
+        "name": "Bliss OS",
+        "desc": "Open-source operating system based on Android, designed to run natively on PC hardware.",
+        "cat": "emulators",
+        "url": "https://blissos.org/",
+        "icon": "https://www.google.com/s2/favicons?domain=blissos.org&sz=64",
+        "id": "blissos-emu"
     }
 ]
